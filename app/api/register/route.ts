@@ -112,16 +112,14 @@ export async function POST(request: Request) {
 
       await client.query('COMMIT');
       
-      return customerId;
+      return NextResponse.json(
+        { message: 'Registration successful', customerId },
+        { status: 201 }
+      );
     } catch (error) {
       await client.query('ROLLBACK');
       throw error;
     }
-
-    return NextResponse.json(
-      { message: 'Registration successful', customerId },
-      { status: 201 }
-    );
   } catch (error) {
     console.error('Registration error:', error);
     return NextResponse.json(

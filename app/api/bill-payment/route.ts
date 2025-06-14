@@ -120,16 +120,14 @@ export async function POST(request: Request) {
 
       await client.query('COMMIT');
       
-      return billPaymentResult.rows[0];
+      return NextResponse.json({
+        message: 'Bill payment successful',
+        paymentId: billPaymentResult.rows[0].payment_id
+      });
     } catch (error) {
       await client.query('ROLLBACK');
       throw error;
     }
-
-    return NextResponse.json({
-      message: 'Bill payment successful',
-      paymentId: billPaymentResult?.payment_id
-    });
 
   } catch (error) {
     console.error('Bill payment error:', error);

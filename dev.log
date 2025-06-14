@@ -366,3 +366,625 @@ Accounts data: [
 ]
  GET /api/accounts 200 in 543ms
  GET /api/transactions?limit=5 200 in 539ms
+Session in accounts API: {
+  user: {
+    name: 'Germaine Hanne',
+    email: 'ghanne9@ning.com',
+    image: undefined,
+    userType: 'customer',
+    role: 'customer',
+    id: '10'
+  }
+}
+Accounts data: [
+  {
+    account_id: 12,
+    account_number: 'GB87FUUZ73545270031648',
+    account_type: 'Checking',
+    balance: '139900.00',
+    status: 'Active'
+  }
+]
+ GET /api/accounts 200 in 562ms
+ GET /api/transactions?limit=5 200 in 452ms
+Session in accounts API: {
+  user: {
+    name: 'Germaine Hanne',
+    email: 'ghanne9@ning.com',
+    image: undefined,
+    userType: 'customer',
+    role: 'customer',
+    id: '10'
+  }
+}
+Accounts data: [
+  {
+    account_id: 12,
+    account_number: 'GB87FUUZ73545270031648',
+    account_type: 'Checking',
+    balance: '139900.00',
+    status: 'Active'
+  }
+]
+ GET /api/accounts 200 in 591ms
+ GET /api/transactions?limit=5 200 in 552ms
+Session in accounts API: {
+  user: {
+    name: 'Germaine Hanne',
+    email: 'ghanne9@ning.com',
+    image: undefined,
+    userType: 'customer',
+    role: 'customer',
+    id: '10'
+  }
+}
+Accounts data: [
+  {
+    account_id: 12,
+    account_number: 'GB87FUUZ73545270031648',
+    account_type: 'Checking',
+    balance: '139900.00',
+    status: 'Active'
+  }
+]
+ GET /api/accounts 200 in 682ms
+ GET /api/transactions?limit=5 200 in 604ms
+Session in accounts API: {
+  user: {
+    name: 'Germaine Hanne',
+    email: 'ghanne9@ning.com',
+    image: undefined,
+    userType: 'customer',
+    role: 'customer',
+    id: '10'
+  }
+}
+Accounts data: [
+  {
+    account_id: 12,
+    account_number: 'GB87FUUZ73545270031648',
+    account_type: 'Checking',
+    balance: '139900.00',
+    status: 'Active'
+  }
+]
+ GET /api/accounts 200 in 4717ms
+ GET /api/transactions?limit=5 200 in 552ms
+Session in accounts API: {
+  user: {
+    name: 'Germaine Hanne',
+    email: 'ghanne9@ning.com',
+    image: undefined,
+    userType: 'customer',
+    role: 'customer',
+    id: '10'
+  }
+}
+Accounts data: [
+  {
+    account_id: 12,
+    account_number: 'GB87FUUZ73545270031648',
+    account_type: 'Checking',
+    balance: '139900.00',
+    status: 'Active'
+  }
+]
+ GET /api/accounts 200 in 556ms
+ GET /api/transactions?limit=5 200 in 445ms
+Session in accounts API: {
+  user: {
+    name: 'Germaine Hanne',
+    email: 'ghanne9@ning.com',
+    image: undefined,
+    userType: 'customer',
+    role: 'customer',
+    id: '10'
+  }
+}
+Accounts data: [
+  {
+    account_id: 12,
+    account_number: 'GB87FUUZ73545270031648',
+    account_type: 'Checking',
+    balance: '139900.00',
+    status: 'Active'
+  }
+]
+ GET /api/accounts 200 in 643ms
+ GET /api/transactions?limit=5 200 in 605ms
+Session in accounts API: {
+  user: {
+    name: 'Germaine Hanne',
+    email: 'ghanne9@ning.com',
+    image: undefined,
+    userType: 'customer',
+    role: 'customer',
+    id: '10'
+  }
+}
+Accounts data: [
+  {
+    account_id: 12,
+    account_number: 'GB87FUUZ73545270031648',
+    account_type: 'Checking',
+    balance: '139900.00',
+    status: 'Active'
+  }
+]
+ GET /api/accounts 200 in 417ms
+ GET /api/transactions?limit=5 200 in 532ms
+Session in accounts API: {
+  user: {
+    name: 'Germaine Hanne',
+    email: 'ghanne9@ning.com',
+    image: undefined,
+    userType: 'customer',
+    role: 'customer',
+    id: '10'
+  }
+}
+Accounts data: [
+  {
+    account_id: 12,
+    account_number: 'GB87FUUZ73545270031648',
+    account_type: 'Checking',
+    balance: '139900.00',
+    status: 'Active'
+  }
+]
+ GET /api/accounts 200 in 713ms
+ GET /api/transactions?limit=5 200 in 608ms
+ GET /api/auth/session 200 in 27ms
+ GET /api/auth/session 200 in 17ms
+Session in accounts API: {
+  user: {
+    name: 'Germaine Hanne',
+    email: 'ghanne9@ning.com',
+    image: undefined,
+    userType: 'customer',
+    role: 'customer',
+    id: '10'
+  }
+}
+Accounts data: [
+  {
+    account_id: 12,
+    account_number: 'GB87FUUZ73545270031648',
+    account_type: 'Checking',
+    balance: '139900.00',
+    status: 'Active'
+  }
+]
+ GET /api/accounts 200 in 435ms
+Session in accounts API: {
+  user: {
+    name: 'Germaine Hanne',
+    email: 'ghanne9@ning.com',
+    image: undefined,
+    userType: 'customer',
+    role: 'customer',
+    id: '10'
+  }
+}
+Accounts data: [
+  {
+    account_id: 12,
+    account_number: 'GB87FUUZ73545270031648',
+    account_type: 'Checking',
+    balance: '139900.00',
+    status: 'Active'
+  }
+]
+ GET /api/accounts 200 in 489ms
+ GET /api/transactions?limit=5 200 in 548ms
+ GET /api/transactions?limit=5 200 in 600ms
+ GET /api/auth/session 200 in 22ms
+ GET /api/auth/session 200 in 17ms
+Session in accounts API: {
+  user: {
+    name: 'Germaine Hanne',
+    email: 'ghanne9@ning.com',
+    image: undefined,
+    userType: 'customer',
+    role: 'customer',
+    id: '10'
+  }
+}
+Accounts data: [
+  {
+    account_id: 12,
+    account_number: 'GB87FUUZ73545270031648',
+    account_type: 'Checking',
+    balance: '139900.00',
+    status: 'Active'
+  }
+]
+ GET /api/accounts 200 in 403ms
+ GET /api/transactions?limit=5 200 in 455ms
+Session in accounts API: {
+  user: {
+    name: 'Germaine Hanne',
+    email: 'ghanne9@ning.com',
+    image: undefined,
+    userType: 'customer',
+    role: 'customer',
+    id: '10'
+  }
+}
+Accounts data: [
+  {
+    account_id: 12,
+    account_number: 'GB87FUUZ73545270031648',
+    account_type: 'Checking',
+    balance: '139900.00',
+    status: 'Active'
+  }
+]
+ GET /api/accounts 200 in 693ms
+ GET /api/transactions?limit=5 200 in 461ms
+Session in accounts API: {
+  user: {
+    name: 'Germaine Hanne',
+    email: 'ghanne9@ning.com',
+    image: undefined,
+    userType: 'customer',
+    role: 'customer',
+    id: '10'
+  }
+}
+Accounts data: [
+  {
+    account_id: 12,
+    account_number: 'GB87FUUZ73545270031648',
+    account_type: 'Checking',
+    balance: '139900.00',
+    status: 'Active'
+  }
+]
+ GET /api/accounts 200 in 542ms
+ GET /api/transactions?limit=5 200 in 520ms
+Session in accounts API: {
+  user: {
+    name: 'Germaine Hanne',
+    email: 'ghanne9@ning.com',
+    image: undefined,
+    userType: 'customer',
+    role: 'customer',
+    id: '10'
+  }
+}
+Accounts data: [
+  {
+    account_id: 12,
+    account_number: 'GB87FUUZ73545270031648',
+    account_type: 'Checking',
+    balance: '139900.00',
+    status: 'Active'
+  }
+]
+ GET /api/accounts 200 in 602ms
+ GET /api/transactions?limit=5 200 in 530ms
+Session in accounts API: {
+  user: {
+    name: 'Germaine Hanne',
+    email: 'ghanne9@ning.com',
+    image: undefined,
+    userType: 'customer',
+    role: 'customer',
+    id: '10'
+  }
+}
+Accounts data: [
+  {
+    account_id: 12,
+    account_number: 'GB87FUUZ73545270031648',
+    account_type: 'Checking',
+    balance: '139900.00',
+    status: 'Active'
+  }
+]
+ GET /api/accounts 200 in 553ms
+ GET /api/transactions?limit=5 200 in 526ms
+Session in accounts API: {
+  user: {
+    name: 'Germaine Hanne',
+    email: 'ghanne9@ning.com',
+    image: undefined,
+    userType: 'customer',
+    role: 'customer',
+    id: '10'
+  }
+}
+Accounts data: [
+  {
+    account_id: 12,
+    account_number: 'GB87FUUZ73545270031648',
+    account_type: 'Checking',
+    balance: '139900.00',
+    status: 'Active'
+  }
+]
+ GET /api/accounts 200 in 498ms
+ GET /api/transactions?limit=5 200 in 617ms
+ GET /api/auth/session 200 in 21ms
+ GET /api/auth/session 200 in 15ms
+Session in accounts API: {
+  user: {
+    name: 'Germaine Hanne',
+    email: 'ghanne9@ning.com',
+    image: undefined,
+    userType: 'customer',
+    role: 'customer',
+    id: '10'
+  }
+}
+Accounts data: [
+  {
+    account_id: 12,
+    account_number: 'GB87FUUZ73545270031648',
+    account_type: 'Checking',
+    balance: '139900.00',
+    status: 'Active'
+  }
+]
+ GET /api/accounts 200 in 576ms
+ GET /api/transactions?limit=5 200 in 598ms
+Session in accounts API: {
+  user: {
+    name: 'Germaine Hanne',
+    email: 'ghanne9@ning.com',
+    image: undefined,
+    userType: 'customer',
+    role: 'customer',
+    id: '10'
+  }
+}
+Accounts data: [
+  {
+    account_id: 12,
+    account_number: 'GB87FUUZ73545270031648',
+    account_type: 'Checking',
+    balance: '139900.00',
+    status: 'Active'
+  }
+]
+ GET /api/accounts 200 in 633ms
+ GET /api/transactions?limit=5 200 in 595ms
+ GET /api/auth/session 200 in 22ms
+ GET /api/auth/session 200 in 17ms
+Session in accounts API: {
+  user: {
+    name: 'Germaine Hanne',
+    email: 'ghanne9@ning.com',
+    image: undefined,
+    userType: 'customer',
+    role: 'customer',
+    id: '10'
+  }
+}
+Accounts data: [
+  {
+    account_id: 12,
+    account_number: 'GB87FUUZ73545270031648',
+    account_type: 'Checking',
+    balance: '139900.00',
+    status: 'Active'
+  }
+]
+ GET /api/accounts 200 in 404ms
+ GET /api/auth/session 200 in 19ms
+ GET /api/transactions?limit=5 200 in 598ms
+Session in accounts API: {
+  user: {
+    name: 'Germaine Hanne',
+    email: 'ghanne9@ning.com',
+    image: undefined,
+    userType: 'customer',
+    role: 'customer',
+    id: '10'
+  }
+}
+Accounts data: [
+  {
+    account_id: 12,
+    account_number: 'GB87FUUZ73545270031648',
+    account_type: 'Checking',
+    balance: '139900.00',
+    status: 'Active'
+  }
+]
+ GET /api/accounts 200 in 544ms
+ GET /api/transactions?limit=5 200 in 607ms
+Session in accounts API: {
+  user: {
+    name: 'Germaine Hanne',
+    email: 'ghanne9@ning.com',
+    image: undefined,
+    userType: 'customer',
+    role: 'customer',
+    id: '10'
+  }
+}
+Accounts data: [
+  {
+    account_id: 12,
+    account_number: 'GB87FUUZ73545270031648',
+    account_type: 'Checking',
+    balance: '139900.00',
+    status: 'Active'
+  }
+]
+ GET /api/accounts 200 in 537ms
+ GET /api/transactions?limit=5 200 in 522ms
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/kaanredstone/Library/CloudStorage/OneDrive-KocUniversitesi/SPRING 2025/COMP 306/Group Project/Banking Application/banking-app/.next/server/app/api/accounts/[__metadata_id__]/route/app-paths-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/kaanredstone/Library/CloudStorage/OneDrive-KocUniversitesi/SPRING 2025/COMP 306/Group Project/Banking Application/banking-app/.next/server/app/api/accounts/[__metadata_id__]/route/app-paths-manifest.json'
+}
+ ✓ Compiled /_error in 363ms
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/kaanredstone/Library/CloudStorage/OneDrive-KocUniversitesi/SPRING 2025/COMP 306/Group Project/Banking Application/banking-app/.next/static/development/_buildManifest.js.tmp.egamf0scaqh'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/kaanredstone/Library/CloudStorage/OneDrive-KocUniversitesi/SPRING 2025/COMP 306/Group Project/Banking Application/banking-app/.next/static/development/_buildManifest.js.tmp.egamf0scaqh'
+}
+[Error: ENOENT: no such file or directory, open '/Users/kaanredstone/Library/CloudStorage/OneDrive-KocUniversitesi/SPRING 2025/COMP 306/Group Project/Banking Application/banking-app/.next/server/app/api/accounts/[__metadata_id__]/route/app-paths-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/kaanredstone/Library/CloudStorage/OneDrive-KocUniversitesi/SPRING 2025/COMP 306/Group Project/Banking Application/banking-app/.next/server/app/api/accounts/[__metadata_id__]/route/app-paths-manifest.json'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/kaanredstone/Library/CloudStorage/OneDrive-KocUniversitesi/SPRING 2025/COMP 306/Group Project/Banking Application/banking-app/.next/static/development/_buildManifest.js.tmp.x91eionfg4m'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/kaanredstone/Library/CloudStorage/OneDrive-KocUniversitesi/SPRING 2025/COMP 306/Group Project/Banking Application/banking-app/.next/static/development/_buildManifest.js.tmp.x91eionfg4m'
+}
+[Error: ENOENT: no such file or directory, open '/Users/kaanredstone/Library/CloudStorage/OneDrive-KocUniversitesi/SPRING 2025/COMP 306/Group Project/Banking Application/banking-app/.next/static/development/_buildManifest.js.tmp.0tu4qgjytoy9'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/kaanredstone/Library/CloudStorage/OneDrive-KocUniversitesi/SPRING 2025/COMP 306/Group Project/Banking Application/banking-app/.next/static/development/_buildManifest.js.tmp.0tu4qgjytoy9'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/kaanredstone/Library/CloudStorage/OneDrive-KocUniversitesi/SPRING 2025/COMP 306/Group Project/Banking Application/banking-app/.next/server/app/api/accounts/[__metadata_id__]/route/app-paths-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/kaanredstone/Library/CloudStorage/OneDrive-KocUniversitesi/SPRING 2025/COMP 306/Group Project/Banking Application/banking-app/.next/server/app/api/accounts/[__metadata_id__]/route/app-paths-manifest.json'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/kaanredstone/Library/CloudStorage/OneDrive-KocUniversitesi/SPRING 2025/COMP 306/Group Project/Banking Application/banking-app/.next/static/development/_buildManifest.js.tmp.gasfrgl2owp'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/kaanredstone/Library/CloudStorage/OneDrive-KocUniversitesi/SPRING 2025/COMP 306/Group Project/Banking Application/banking-app/.next/static/development/_buildManifest.js.tmp.gasfrgl2owp'
+}
+[Error: ENOENT: no such file or directory, open '/Users/kaanredstone/Library/CloudStorage/OneDrive-KocUniversitesi/SPRING 2025/COMP 306/Group Project/Banking Application/banking-app/.next/server/app/api/accounts/[__metadata_id__]/route/app-paths-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/kaanredstone/Library/CloudStorage/OneDrive-KocUniversitesi/SPRING 2025/COMP 306/Group Project/Banking Application/banking-app/.next/server/app/api/accounts/[__metadata_id__]/route/app-paths-manifest.json'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/kaanredstone/Library/CloudStorage/OneDrive-KocUniversitesi/SPRING 2025/COMP 306/Group Project/Banking Application/banking-app/.next/static/development/_buildManifest.js.tmp.q3ky76w2pp'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/kaanredstone/Library/CloudStorage/OneDrive-KocUniversitesi/SPRING 2025/COMP 306/Group Project/Banking Application/banking-app/.next/static/development/_buildManifest.js.tmp.q3ky76w2pp'
+}
+[Error: ENOENT: no such file or directory, open '/Users/kaanredstone/Library/CloudStorage/OneDrive-KocUniversitesi/SPRING 2025/COMP 306/Group Project/Banking Application/banking-app/.next/static/development/_buildManifest.js.tmp.9prz24anpf8'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/kaanredstone/Library/CloudStorage/OneDrive-KocUniversitesi/SPRING 2025/COMP 306/Group Project/Banking Application/banking-app/.next/static/development/_buildManifest.js.tmp.9prz24anpf8'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/kaanredstone/Library/CloudStorage/OneDrive-KocUniversitesi/SPRING 2025/COMP 306/Group Project/Banking Application/banking-app/.next/server/app/api/accounts/[__metadata_id__]/route/app-paths-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/kaanredstone/Library/CloudStorage/OneDrive-KocUniversitesi/SPRING 2025/COMP 306/Group Project/Banking Application/banking-app/.next/server/app/api/accounts/[__metadata_id__]/route/app-paths-manifest.json'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/kaanredstone/Library/CloudStorage/OneDrive-KocUniversitesi/SPRING 2025/COMP 306/Group Project/Banking Application/banking-app/.next/server/pages/_app/build-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/kaanredstone/Library/CloudStorage/OneDrive-KocUniversitesi/SPRING 2025/COMP 306/Group Project/Banking Application/banking-app/.next/server/pages/_app/build-manifest.json'
+}
+[Error: ENOENT: no such file or directory, open '/Users/kaanredstone/Library/CloudStorage/OneDrive-KocUniversitesi/SPRING 2025/COMP 306/Group Project/Banking Application/banking-app/.next/server/app/api/accounts/[__metadata_id__]/route/app-paths-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/kaanredstone/Library/CloudStorage/OneDrive-KocUniversitesi/SPRING 2025/COMP 306/Group Project/Banking Application/banking-app/.next/server/app/api/accounts/[__metadata_id__]/route/app-paths-manifest.json'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/kaanredstone/Library/CloudStorage/OneDrive-KocUniversitesi/SPRING 2025/COMP 306/Group Project/Banking Application/banking-app/.next/server/pages/_app/build-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/kaanredstone/Library/CloudStorage/OneDrive-KocUniversitesi/SPRING 2025/COMP 306/Group Project/Banking Application/banking-app/.next/server/pages/_app/build-manifest.json'
+}
+[Error: ENOENT: no such file or directory, open '/Users/kaanredstone/Library/CloudStorage/OneDrive-KocUniversitesi/SPRING 2025/COMP 306/Group Project/Banking Application/banking-app/.next/server/pages/_app/build-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/kaanredstone/Library/CloudStorage/OneDrive-KocUniversitesi/SPRING 2025/COMP 306/Group Project/Banking Application/banking-app/.next/server/pages/_app/build-manifest.json'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/kaanredstone/Library/CloudStorage/OneDrive-KocUniversitesi/SPRING 2025/COMP 306/Group Project/Banking Application/banking-app/.next/server/app/api/accounts/[__metadata_id__]/route/app-paths-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/kaanredstone/Library/CloudStorage/OneDrive-KocUniversitesi/SPRING 2025/COMP 306/Group Project/Banking Application/banking-app/.next/server/app/api/accounts/[__metadata_id__]/route/app-paths-manifest.json'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/kaanredstone/Library/CloudStorage/OneDrive-KocUniversitesi/SPRING 2025/COMP 306/Group Project/Banking Application/banking-app/.next/server/pages/_app/build-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/kaanredstone/Library/CloudStorage/OneDrive-KocUniversitesi/SPRING 2025/COMP 306/Group Project/Banking Application/banking-app/.next/server/pages/_app/build-manifest.json'
+}
+[Error: ENOENT: no such file or directory, open '/Users/kaanredstone/Library/CloudStorage/OneDrive-KocUniversitesi/SPRING 2025/COMP 306/Group Project/Banking Application/banking-app/.next/server/app/api/accounts/[__metadata_id__]/route/app-paths-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/kaanredstone/Library/CloudStorage/OneDrive-KocUniversitesi/SPRING 2025/COMP 306/Group Project/Banking Application/banking-app/.next/server/app/api/accounts/[__metadata_id__]/route/app-paths-manifest.json'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/kaanredstone/Library/CloudStorage/OneDrive-KocUniversitesi/SPRING 2025/COMP 306/Group Project/Banking Application/banking-app/.next/server/pages/_app/build-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/kaanredstone/Library/CloudStorage/OneDrive-KocUniversitesi/SPRING 2025/COMP 306/Group Project/Banking Application/banking-app/.next/server/pages/_app/build-manifest.json'
+}
+[Error: ENOENT: no such file or directory, open '/Users/kaanredstone/Library/CloudStorage/OneDrive-KocUniversitesi/SPRING 2025/COMP 306/Group Project/Banking Application/banking-app/.next/server/pages/_app/build-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/kaanredstone/Library/CloudStorage/OneDrive-KocUniversitesi/SPRING 2025/COMP 306/Group Project/Banking Application/banking-app/.next/server/pages/_app/build-manifest.json'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/kaanredstone/Library/CloudStorage/OneDrive-KocUniversitesi/SPRING 2025/COMP 306/Group Project/Banking Application/banking-app/.next/server/app/api/accounts/[__metadata_id__]/route/app-paths-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/kaanredstone/Library/CloudStorage/OneDrive-KocUniversitesi/SPRING 2025/COMP 306/Group Project/Banking Application/banking-app/.next/server/app/api/accounts/[__metadata_id__]/route/app-paths-manifest.json'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/kaanredstone/Library/CloudStorage/OneDrive-KocUniversitesi/SPRING 2025/COMP 306/Group Project/Banking Application/banking-app/.next/server/pages/_app/build-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/kaanredstone/Library/CloudStorage/OneDrive-KocUniversitesi/SPRING 2025/COMP 306/Group Project/Banking Application/banking-app/.next/server/pages/_app/build-manifest.json'
+}
+[Error: ENOENT: no such file or directory, open '/Users/kaanredstone/Library/CloudStorage/OneDrive-KocUniversitesi/SPRING 2025/COMP 306/Group Project/Banking Application/banking-app/.next/server/app/api/accounts/[__metadata_id__]/route/app-paths-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/kaanredstone/Library/CloudStorage/OneDrive-KocUniversitesi/SPRING 2025/COMP 306/Group Project/Banking Application/banking-app/.next/server/app/api/accounts/[__metadata_id__]/route/app-paths-manifest.json'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/kaanredstone/Library/CloudStorage/OneDrive-KocUniversitesi/SPRING 2025/COMP 306/Group Project/Banking Application/banking-app/.next/server/pages/_app/build-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/kaanredstone/Library/CloudStorage/OneDrive-KocUniversitesi/SPRING 2025/COMP 306/Group Project/Banking Application/banking-app/.next/server/pages/_app/build-manifest.json'
+}
+[Error: ENOENT: no such file or directory, open '/Users/kaanredstone/Library/CloudStorage/OneDrive-KocUniversitesi/SPRING 2025/COMP 306/Group Project/Banking Application/banking-app/.next/server/pages/_app/build-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/kaanredstone/Library/CloudStorage/OneDrive-KocUniversitesi/SPRING 2025/COMP 306/Group Project/Banking Application/banking-app/.next/server/pages/_app/build-manifest.json'
+}
+Session in accounts API: {
+  user: {
+    name: 'Germaine Hanne',
+    email: 'ghanne9@ning.com',
+    image: undefined,
+    userType: 'customer',
+    role: 'customer',
+    id: '10'
+  }
+}
+Accounts data: [
+  {
+    account_id: 12,
+    account_number: 'GB87FUUZ73545270031648',
+    account_type: 'Checking',
+    balance: '139900.00',
+    status: 'Active'
+  }
+]
+ GET /api/accounts 200 in 567ms
+ GET /api/transactions?limit=5 200 in 594ms
