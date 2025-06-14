@@ -13,9 +13,9 @@ interface DashboardStats {
   totalAccounts: number;
   totalDeposits: number;
   pendingLoans: number;
-  monthlyRegistrations: Array<{
+  monthlyTransactions: Array<{
     month: string;
-    count: number;
+    volume: number;
   }>;
   highValueCustomers: Array<{
     customer_id: number;
@@ -57,7 +57,7 @@ export default function AdminDashboard() {
           totalAccounts: 0,
           totalDeposits: 0,
           pendingLoans: 0,
-          monthlyRegistrations: [],
+          monthlyTransactions: [],
           highValueCustomers: []
         });
       }
@@ -69,7 +69,7 @@ export default function AdminDashboard() {
         totalAccounts: 0,
         totalDeposits: 0,
         pendingLoans: 0,
-        monthlyRegistrations: [],
+        monthlyTransactions: [],
         highValueCustomers: []
       });
     } finally {
@@ -106,6 +106,16 @@ export default function AdminDashboard() {
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Advanced Analytics Button */}
+        <div className="mb-6">
+          <Link
+            href="/admin/analytics"
+            className="inline-flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            <BarChart3 className="h-5 w-5" />
+            <span>View Advanced Analytics</span>
+          </Link>
+        </div>
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <div className="bg-white rounded-lg shadow p-6">
@@ -195,24 +205,24 @@ export default function AdminDashboard() {
 
         {/* Charts Section */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Monthly Registrations Chart */}
+          {/* Monthly Transaction Volume Chart */}
           <div className="bg-white rounded-lg shadow p-6">
             <h2 className="text-lg font-semibold text-gray-900 mb-4">
-              Monthly Customer Registrations
+              Monthly Transaction Volume
             </h2>
             <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={stats.monthlyRegistrations}>
+              <LineChart data={stats.monthlyTransactions}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="month" />
                 <YAxis />
-                <Tooltip />
+                <Tooltip formatter={(value: number) => `$${value.toLocaleString()}`} />
                 <Legend />
                 <Line 
                   type="monotone" 
-                  dataKey="count" 
+                  dataKey="volume" 
                   stroke="#3B82F6" 
                   strokeWidth={2}
-                  name="New Customers"
+                  name="Transaction Volume ($)"
                 />
               </LineChart>
             </ResponsiveContainer>

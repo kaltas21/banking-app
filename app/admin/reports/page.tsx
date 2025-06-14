@@ -130,7 +130,7 @@ export default function ReportsPage() {
             <div className="bg-white rounded-lg shadow p-6">
               <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
                 <DollarSign className="h-5 w-5 mr-2 text-green-600" />
-                High-Value Customers (>$75k with Active Loans)
+                High-Value Customers (&gt;$75k with Active Loans)
               </h2>
               <div className="space-y-3">
                 {reports.highValueCustomers.slice(0, 5).map((customer) => (

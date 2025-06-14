@@ -1,41 +1,49 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
-import { supabaseAdmin } from '@/lib/supabase';
+import { authOptions } from '@/lib/auth';
+import { getDbClient } from '@/lib/get-db-client';
 
 // GET - Fetch loans for the current customer
 export async function GET() {
+  const client = getDbClient();
+
   try {
+    await client.connect();
+    
     const session = await getServerSession(authOptions);
     
     if (!session || !session.user?.id || session.user.userType !== 'customer') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { data, error } = await supabaseAdmin
-      .from('loans')
-      .select('loan_id, loan_amount, interest_rate, term_months, status, application_date')
-      .eq('customer_id', session.user.id)
-      .order('application_date', { ascending: false });
+    const loansQuery = `
+      SELECT loan_id, loan_amount, interest_rate, term_months, status, application_date
+      FROM loans
+      WHERE customer_id = $1
+      ORDER BY application_date DESC
+    `;
+    const loansResult = await client.query(loansQuery, [session.user.id]);
+    const loans = loansResult.rows;
 
-    if (error) {
-      console.error('Error fetching loans:', error);
-      throw error;
-    }
-
-    return NextResponse.json(data || []);
+    return NextResponse.json(loans);
   } catch (error) {
     console.error('Error fetching loans:', error);
     return NextResponse.json(
       { error: 'Failed to fetch loans' },
       { status: 500 }
     );
+  } finally {
+    await client.end();
   }
 }
 
 // POST - Create a new loan application
 export async function POST(request: Request) {
+  const client = getDbClient();
+
   try {
+    await client.connect();
+    
     const session = await getServerSession(authOptions);
     
     if (!session || !session.user?.id || session.user.userType !== 'customer') {
@@ -61,13 +69,16 @@ export async function POST(request: Request) {
     }
 
     // Check if customer has any pending loans
-    const { data: pendingLoans } = await supabaseAdmin
-      .from('loans')
-      .select('loan_id')
-      .eq('customer_id', session.user.id)
-      .eq('status', 'Pending');
+    const pendingLoansQuery = `
+      SELECT loan_id
+      FROM loans
+      WHERE customer_id = $1
+        AND status = 'Pending'
+    `;
+    const pendingLoansResult = await client.query(pendingLoansQuery, [session.user.id]);
+    const pendingLoans = pendingLoansResult.rows;
 
-    if (pendingLoans && pendingLoans.length > 0) {
+    if (pendingLoans.length > 0) {
       return NextResponse.json(
         { error: 'You already have a pending loan application' },
         { status: 400 }
@@ -78,38 +89,33 @@ export async function POST(request: Request) {
     const interestRate = 5.5;
 
     // Get the next loan_id
-    const { data: maxLoanId } = await supabaseAdmin
-      .from('loans')
-      .select('loan_id')
-      .order('loan_id', { ascending: false })
-      .limit(1)
-      .single();
-
-    const nextLoanId = (maxLoanId?.loan_id || 0) + 1;
+    const maxLoanIdQuery = `
+      SELECT COALESCE(MAX(loan_id), 0) + 1 as next_loan_id
+      FROM loans
+    `;
+    const maxLoanIdResult = await client.query(maxLoanIdQuery);
+    const nextLoanId = maxLoanIdResult.rows[0].next_loan_id;
 
     // Insert new loan application
-    const { data: newLoan, error: insertError } = await supabaseAdmin
-      .from('loans')
-      .insert({
-        loan_id: nextLoanId,
-        customer_id: session.user.id,
-        loan_amount: loanAmount,
-        interest_rate: interestRate,
-        term_months: termMonths,
-        status: 'Pending',
-        application_date: new Date().toISOString()
-      })
-      .select()
-      .single();
-
-    if (insertError) {
-      console.error('Error creating loan:', insertError);
-      throw insertError;
-    }
+    const newLoanQuery = `
+      INSERT INTO loans (
+        loan_id, customer_id, loan_amount,
+        interest_rate, term_months, status, application_date
+      )
+      VALUES (
+        $1, $2, $3,
+        $4, $5, 'Pending', $6
+      )
+      RETURNING loan_id
+    `;
+    const newLoanResult = await client.query(newLoanQuery, [
+      nextLoanId, session.user.id, loanAmount,
+      interestRate, termMonths, new Date().toISOString()
+    ]);
 
     return NextResponse.json({
       message: 'Loan application submitted successfully',
-      loanId: newLoan.loan_id
+      loanId: newLoanResult.rows[0].loan_id
     });
   } catch (error) {
     console.error('Error creating loan application:', error);
@@ -117,5 +123,7 @@ export async function POST(request: Request) {
       { error: 'Failed to submit loan application' },
       { status: 500 }
     );
+  } finally {
+    await client.end();
   }
 }

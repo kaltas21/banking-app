@@ -16,14 +16,17 @@
     "@types/bcrypt": "^5.0.2",
     "@types/pg": "^8.15.4",
     "bcrypt": "^6.0.0",
+    "clsx": "^2.1.1",
     "dotenv": "^16.5.0",
     "lucide-react": "^0.514.0",
     "next": "15.3.3",
     "next-auth": "^4.24.11",
     "pg": "^8.16.0",
+    "postgres": "^3.4.7",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "recharts": "^2.15.3"
+    "recharts": "^2.15.3",
+    "tailwind-merge": "^3.3.1"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

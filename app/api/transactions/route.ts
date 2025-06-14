@@ -1,10 +1,14 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
-import { supabaseAdmin } from '@/lib/supabase';
+import { authOptions } from '@/lib/auth';
+import { getDbClient } from '@/lib/get-db-client';
 
 export async function GET(request: Request) {
+  const client = getDbClient();
+
   try {
+    await client.connect();
+    
     const session = await getServerSession(authOptions);
     
     if (!session || !session.user?.id) {
@@ -17,80 +21,63 @@ export async function GET(request: Request) {
 
     if (accountId) {
       // Get transactions for a specific account
-      const { data: transactions, error } = await supabaseAdmin
-        .from('transactions')
-        .select(`
-          *,
-          from_account:accounts!from_account_id(account_number),
-          to_account:accounts!to_account_id(account_number)
-        `)
-        .or(`from_account_id.eq.${accountId},to_account_id.eq.${accountId}`)
-        .order('transaction_date', { ascending: false })
-        .limit(limit);
+      const transactionsQuery = `
+        SELECT 
+          t.*,
+          fa.account_number AS from_account_number,
+          ta.account_number AS to_account_number
+        FROM transactions t
+        LEFT JOIN accounts fa ON t.from_account_id = fa.account_id
+        LEFT JOIN accounts ta ON t.to_account_id = ta.account_id
+        WHERE t.from_account_id = $1 OR t.to_account_id = $1
+        ORDER BY t.transaction_date DESC
+        LIMIT $2
+      `;
+      const transactionsResult = await client.query(transactionsQuery, [accountId, limit]);
+      const transactions = transactionsResult.rows;
 
-      if (error) {
-        console.error('Error fetching transactions:', error);
-        throw error;
-      }
-
-      // Transform the data to match expected format
-      const transformedData = transactions?.map(t => ({
-        ...t,
-        from_account_number: t.from_account?.account_number,
-        to_account_number: t.to_account?.account_number
-      })) || [];
-
-      return NextResponse.json(transformedData);
+      return NextResponse.json(transactions);
     } else {
       // Get all transactions for the customer's accounts
       // First get customer's account IDs
-      const { data: accounts, error: accountError } = await supabaseAdmin
-        .from('accounts')
-        .select('account_id')
-        .eq('customer_id', session.user.id);
+      const accountsQuery = `
+        SELECT account_id
+        FROM accounts
+        WHERE customer_id = $1
+      `;
+      const accountsResult = await client.query(accountsQuery, [session.user.id]);
+      const accounts = accountsResult.rows;
 
-      if (accountError) {
-        console.error('Error fetching accounts:', accountError);
-        throw accountError;
-      }
-
-      const accountIds = accounts?.map(a => a.account_id) || [];
+      const accountIds = accounts.map(a => a.account_id);
 
       if (accountIds.length === 0) {
         return NextResponse.json([]);
       }
 
       // Then get transactions for those accounts
-      const { data: transactions, error } = await supabaseAdmin
-        .from('transactions')
-        .select(`
-          *,
-          from_account:accounts!from_account_id(account_number),
-          to_account:accounts!to_account_id(account_number)
-        `)
-        .or(`from_account_id.in.(${accountIds.join(',')}),to_account_id.in.(${accountIds.join(',')})`)
-        .order('transaction_date', { ascending: false })
-        .limit(limit);
+      const transactionsQuery = `
+        SELECT 
+          t.*,
+          fa.account_number AS from_account_number,
+          ta.account_number AS to_account_number
+        FROM transactions t
+        LEFT JOIN accounts fa ON t.from_account_id = fa.account_id
+        LEFT JOIN accounts ta ON t.to_account_id = ta.account_id
+        WHERE t.from_account_id = ANY($1) OR t.to_account_id = ANY($1)
+        ORDER BY t.transaction_date DESC
+        LIMIT $2
+      `;
+      const transactionsResult = await client.query(transactionsQuery, [accountIds, limit]);
+      const transactions = transactionsResult.rows;
 
-      if (error) {
-        console.error('Error fetching transactions:', error);
-        throw error;
-      }
-
-      // Transform the data to match expected format
-      const transformedData = transactions?.map(t => ({
-        ...t,
-        from_account_number: t.from_account?.account_number,
-        to_account_number: t.to_account?.account_number
-      })) || [];
-
-      return NextResponse.json(transformedData);
+      return NextResponse.json(transactions);
     }
   } catch (error) {
     console.error('Error fetching transactions:', error);
-    return NextResponse.json(
-      { error: 'Failed to fetch transactions' },
-      { status: 500 }
+    // Return empty array instead of error object to match expected format
+    return NextResponse.json([], { status: 500 }
     );
+  } finally {
+    await client.end();
   }
 }

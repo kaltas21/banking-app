@@ -163,16 +163,16 @@ export default function CustomerManagementPage() {
                     placeholder="Search customers by name or email..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-gray-900 bg-white"
                   />
                 </div>
                 <select
                   value={filterType}
                   onChange={(e) => setFilterType(e.target.value as any)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-gray-900 bg-white"
                 >
                   <option value="all">All Customers</option>
-                  <option value="high-value">High-Value Customers (>$75k)</option>
+                  <option value="high-value">High-Value Customers (&gt;$75k)</option>
                   <option value="inactive">Inactive Customers (6+ months)</option>
                   <option value="multiple-accounts">Multiple Account Holders</option>
                 </select>

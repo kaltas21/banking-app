@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
@@ -14,7 +14,7 @@ interface Account {
   status: string;
 }
 
-export default function TransferPage() {
+function TransferContent() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -187,7 +187,7 @@ export default function TransferPage() {
               <select
                 value={formData.fromAccountId}
                 onChange={(e) => setFormData({ ...formData, fromAccountId: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-gray-900 bg-white"
                 required
               >
                 {accounts.map((account) => (
@@ -209,7 +209,7 @@ export default function TransferPage() {
                     type="text"
                     value={formData.billerName}
                     onChange={(e) => setFormData({ ...formData, billerName: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-gray-900 bg-white"
                     placeholder="e.g., Electric Company"
                     required
                   />
@@ -224,7 +224,7 @@ export default function TransferPage() {
                     type="text"
                     value={formData.billerAccountNumber}
                     onChange={(e) => setFormData({ ...formData, billerAccountNumber: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-gray-900 bg-white"
                     placeholder="Enter biller account number"
                     required
                   />
@@ -240,7 +240,7 @@ export default function TransferPage() {
                   type="text"
                   value={formData.toAccountNumber}
                   onChange={(e) => setFormData({ ...formData, toAccountNumber: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-gray-900 bg-white"
                   placeholder="Enter recipient account number"
                   required
                 />
@@ -263,7 +263,7 @@ export default function TransferPage() {
                   max={selectedAccount?.balance || 0}
                   value={formData.amount}
                   onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
-                  className="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-gray-900 bg-white"
                   placeholder="0.00"
                   required
                 />
@@ -284,7 +284,7 @@ export default function TransferPage() {
                 type="text"
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-gray-900 bg-white"
                 placeholder={transferType === 'bill' ? 'e.g., Monthly electricity bill' : 'e.g., Rent payment'}
               />
             </div>
@@ -309,5 +309,13 @@ export default function TransferPage() {
         </div>
       </main>
     </div>
+  );
+}
+
+export default function TransferPage() {
+  return (
+    <Suspense fallback={<div className="flex justify-center items-center min-h-screen">Loading...</div>}>
+      <TransferContent />
+    </Suspense>
   );
 }

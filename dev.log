@@ -1,0 +1,368 @@
+
+> banking-app@0.1.0 dev
+> next dev --turbopack
+
+   ▲ Next.js 15.3.3 (Turbopack)
+   - Local:        http://localhost:3000
+   - Network:      http://10.22.95.167:3000
+   - Environments: .env.local
+
+ ✓ Starting...
+ ✓ Compiled middleware in 95ms
+ ✓ Ready in 662ms
+ ○ Compiling / ...
+ ✓ Compiled / in 957ms
+ HEAD / 200 in 1095ms
+ ✓ Compiled /api/auth/[...nextauth] in 219ms
+✗ Database connection failed: getaddrinfo ENOTFOUND db.exyoucfdiggseoijblni.supabase.co
+✗ Database connection failed: getaddrinfo ENOTFOUND db.exyoucfdiggseoijblni.supabase.co
+ GET /api/auth/providers 200 in 543ms
+   Reload env: .env.local
+   Reload env: .env.local
+   Reload env: .env.local
+   Reload env: .env.local
+   Reload env: .env.local
+   Reload env: .env.local
+   Reload env: .env.local
+   Reload env: .env.local
+   Reload env: .env.local
+   Reload env: .env.local
+ ✓ Compiled middleware in 1ms
+ ✓ Compiled /login in 425ms
+ GET /login 200 in 542ms
+ GET /api/auth/session 200 in 66ms
+ GET /api/auth/session 200 in 19ms
+ GET /login 200 in 42ms
+ GET /api/auth/session 200 in 32ms
+ GET /api/auth/session 200 in 22ms
+ GET /api/auth/providers 200 in 24ms
+ GET /api/auth/csrf 200 in 16ms
+ POST /api/auth/callback/credentials 200 in 719ms
+ GET /api/auth/session 200 in 24ms
+ ✓ Compiled /dashboard in 361ms
+ GET /dashboard 200 in 389ms
+ ✓ Compiled /api/accounts in 189ms
+Session in accounts API: {
+  user: {
+    name: 'Germaine Hanne',
+    email: 'ghanne9@ning.com',
+    image: undefined,
+    userType: 'customer',
+    role: 'customer',
+    id: '10'
+  }
+}
+Accounts data: [
+  {
+    account_id: 12,
+    account_number: 'GB87FUUZ73545270031648',
+    account_type: 'Checking',
+    balance: '139900.00',
+    status: 'Active'
+  }
+]
+ GET /api/accounts 200 in 744ms
+ ✓ Compiled /api/transactions in 201ms
+Session in accounts API: {
+  user: {
+    name: 'Germaine Hanne',
+    email: 'ghanne9@ning.com',
+    image: undefined,
+    userType: 'customer',
+    role: 'customer',
+    id: '10'
+  }
+}
+Accounts data: [
+  {
+    account_id: 12,
+    account_number: 'GB87FUUZ73545270031648',
+    account_type: 'Checking',
+    balance: '139900.00',
+    status: 'Active'
+  }
+]
+ GET /api/accounts 200 in 471ms
+ GET /api/transactions?limit=5 200 in 801ms
+ GET /api/transactions?limit=5 200 in 596ms
+ ✓ Compiled /transfer in 267ms
+ GET /transfer 200 in 287ms
+Session in accounts API: {
+  user: {
+    name: 'Germaine Hanne',
+    email: 'ghanne9@ning.com',
+    image: undefined,
+    userType: 'customer',
+    role: 'customer',
+    id: '10'
+  }
+}
+Accounts data: [
+  {
+    account_id: 12,
+    account_number: 'GB87FUUZ73545270031648',
+    account_type: 'Checking',
+    balance: '139900.00',
+    status: 'Active'
+  }
+]
+ GET /api/accounts 200 in 483ms
+Session in accounts API: {
+  user: {
+    name: 'Germaine Hanne',
+    email: 'ghanne9@ning.com',
+    image: undefined,
+    userType: 'customer',
+    role: 'customer',
+    id: '10'
+  }
+}
+Accounts data: [
+  {
+    account_id: 12,
+    account_number: 'GB87FUUZ73545270031648',
+    account_type: 'Checking',
+    balance: '139900.00',
+    status: 'Active'
+  }
+]
+ GET /api/accounts 200 in 533ms
+ GET /dashboard 200 in 22ms
+Session in accounts API: {
+  user: {
+    name: 'Germaine Hanne',
+    email: 'ghanne9@ning.com',
+    image: undefined,
+    userType: 'customer',
+    role: 'customer',
+    id: '10'
+  }
+}
+Accounts data: [
+  {
+    account_id: 12,
+    account_number: 'GB87FUUZ73545270031648',
+    account_type: 'Checking',
+    balance: '139900.00',
+    status: 'Active'
+  }
+]
+ GET /api/accounts 200 in 472ms
+Session in accounts API: {
+  user: {
+    name: 'Germaine Hanne',
+    email: 'ghanne9@ning.com',
+    image: undefined,
+    userType: 'customer',
+    role: 'customer',
+    id: '10'
+  }
+}
+Accounts data: [
+  {
+    account_id: 12,
+    account_number: 'GB87FUUZ73545270031648',
+    account_type: 'Checking',
+    balance: '139900.00',
+    status: 'Active'
+  }
+]
+ GET /api/transactions?limit=5 200 in 539ms
+ GET /api/accounts 200 in 544ms
+ GET /api/transactions?limit=5 200 in 597ms
+ ○ Compiling /dashboard/analytics ...
+ ✓ Compiled /dashboard/analytics in 541ms
+ GET /dashboard/analytics 200 in 556ms
+ ✓ Compiled /api/customer-analytics in 213ms
+ GET /api/customer-analytics 200 in 803ms
+ GET /api/customer-analytics 200 in 586ms
+ GET /dashboard 200 in 26ms
+Session in accounts API: {
+  user: {
+    name: 'Germaine Hanne',
+    email: 'ghanne9@ning.com',
+    image: undefined,
+    userType: 'customer',
+    role: 'customer',
+    id: '10'
+  }
+}
+Accounts data: [
+  {
+    account_id: 12,
+    account_number: 'GB87FUUZ73545270031648',
+    account_type: 'Checking',
+    balance: '139900.00',
+    status: 'Active'
+  }
+]
+ GET /api/accounts 200 in 406ms
+Session in accounts API: {
+  user: {
+    name: 'Germaine Hanne',
+    email: 'ghanne9@ning.com',
+    image: undefined,
+    userType: 'customer',
+    role: 'customer',
+    id: '10'
+  }
+}
+Accounts data: [
+  {
+    account_id: 12,
+    account_number: 'GB87FUUZ73545270031648',
+    account_type: 'Checking',
+    balance: '139900.00',
+    status: 'Active'
+  }
+]
+ GET /api/accounts 200 in 483ms
+ GET /api/transactions?limit=5 200 in 615ms
+ GET /api/transactions?limit=5 200 in 532ms
+Session in accounts API: {
+  user: {
+    name: 'Germaine Hanne',
+    email: 'ghanne9@ning.com',
+    image: undefined,
+    userType: 'customer',
+    role: 'customer',
+    id: '10'
+  }
+}
+Accounts data: [
+  {
+    account_id: 12,
+    account_number: 'GB87FUUZ73545270031648',
+    account_type: 'Checking',
+    balance: '139900.00',
+    status: 'Active'
+  }
+]
+ GET /api/accounts 200 in 535ms
+ GET /api/transactions?limit=5 200 in 616ms
+Session in accounts API: {
+  user: {
+    name: 'Germaine Hanne',
+    email: 'ghanne9@ning.com',
+    image: undefined,
+    userType: 'customer',
+    role: 'customer',
+    id: '10'
+  }
+}
+Accounts data: [
+  {
+    account_id: 12,
+    account_number: 'GB87FUUZ73545270031648',
+    account_type: 'Checking',
+    balance: '139900.00',
+    status: 'Active'
+  }
+]
+ GET /api/accounts 200 in 482ms
+ GET /api/transactions?limit=5 200 in 455ms
+Session in accounts API: {
+  user: {
+    name: 'Germaine Hanne',
+    email: 'ghanne9@ning.com',
+    image: undefined,
+    userType: 'customer',
+    role: 'customer',
+    id: '10'
+  }
+}
+Accounts data: [
+  {
+    account_id: 12,
+    account_number: 'GB87FUUZ73545270031648',
+    account_type: 'Checking',
+    balance: '139900.00',
+    status: 'Active'
+  }
+]
+ GET /api/accounts 200 in 621ms
+ GET /api/transactions?limit=5 200 in 490ms
+Session in accounts API: {
+  user: {
+    name: 'Germaine Hanne',
+    email: 'ghanne9@ning.com',
+    image: undefined,
+    userType: 'customer',
+    role: 'customer',
+    id: '10'
+  }
+}
+Accounts data: [
+  {
+    account_id: 12,
+    account_number: 'GB87FUUZ73545270031648',
+    account_type: 'Checking',
+    balance: '139900.00',
+    status: 'Active'
+  }
+]
+ GET /api/accounts 200 in 468ms
+ GET /api/transactions?limit=5 200 in 460ms
+Session in accounts API: {
+  user: {
+    name: 'Germaine Hanne',
+    email: 'ghanne9@ning.com',
+    image: undefined,
+    userType: 'customer',
+    role: 'customer',
+    id: '10'
+  }
+}
+Accounts data: [
+  {
+    account_id: 12,
+    account_number: 'GB87FUUZ73545270031648',
+    account_type: 'Checking',
+    balance: '139900.00',
+    status: 'Active'
+  }
+]
+ GET /api/accounts 200 in 538ms
+ GET /api/transactions?limit=5 200 in 601ms
+Session in accounts API: {
+  user: {
+    name: 'Germaine Hanne',
+    email: 'ghanne9@ning.com',
+    image: undefined,
+    userType: 'customer',
+    role: 'customer',
+    id: '10'
+  }
+}
+Accounts data: [
+  {
+    account_id: 12,
+    account_number: 'GB87FUUZ73545270031648',
+    account_type: 'Checking',
+    balance: '139900.00',
+    status: 'Active'
+  }
+]
+ GET /api/accounts 200 in 492ms
+ GET /api/transactions?limit=5 200 in 537ms
+Session in accounts API: {
+  user: {
+    name: 'Germaine Hanne',
+    email: 'ghanne9@ning.com',
+    image: undefined,
+    userType: 'customer',
+    role: 'customer',
+    id: '10'
+  }
+}
+Accounts data: [
+  {
+    account_id: 12,
+    account_number: 'GB87FUUZ73545270031648',
+    account_type: 'Checking',
+    balance: '139900.00',
+    status: 'Active'
+  }
+]
+ GET /api/accounts 200 in 543ms
+ GET /api/transactions?limit=5 200 in 539ms

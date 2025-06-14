@@ -1,10 +1,14 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
-import { supabaseAdmin } from '@/lib/supabase';
+import { authOptions } from '@/lib/auth';
+import { getDbClient } from '@/lib/get-db-client';
 
 export async function POST(request: Request) {
+  const client = getDbClient();
+
   try {
+    await client.connect();
+    
     const session = await getServerSession(authOptions);
     
     if (!session || !session.user?.id) {
@@ -23,20 +27,24 @@ export async function POST(request: Request) {
     }
 
     // Verify account belongs to user and has sufficient balance
-    const { data: account, error: accountError } = await supabaseAdmin
-      .from('accounts')
-      .select('account_id, balance, account_number')
-      .eq('account_id', accountId)
-      .eq('customer_id', session.user.id)
-      .eq('status', 'Active')
-      .single();
+    const accountsQuery = `
+      SELECT account_id, balance, account_number
+      FROM accounts
+      WHERE account_id = $1
+        AND customer_id = $2
+        AND status = 'Active'
+    `;
+    const accountsResult = await client.query(accountsQuery, [accountId, session.user.id]);
+    const accounts = accountsResult.rows;
 
-    if (accountError || !account) {
+    if (accounts.length === 0) {
       return NextResponse.json(
         { error: 'Invalid account' },
         { status: 400 }
       );
     }
+
+    const account = accounts[0];
 
     if (parseFloat(account.balance) < amount) {
       return NextResponse.json(
@@ -45,74 +53,82 @@ export async function POST(request: Request) {
       );
     }
 
-    // Debit from account
-    const { error: debitError } = await supabaseAdmin
-      .from('accounts')
-      .update({ balance: parseFloat(account.balance) - amount })
-      .eq('account_id', accountId);
+    // Start a transaction for atomicity
+    await client.query('BEGIN');
+    
+    try {
+      // Debit from account
+      const debitQuery = `
+        UPDATE accounts
+        SET balance = balance - $1
+        WHERE account_id = $2
+      `;
+      await client.query(debitQuery, [amount, accountId]);
 
-    if (debitError) {
-      throw debitError;
-    }
+      // Get the next payment_id
+      const maxPaymentIdQuery = `
+        SELECT COALESCE(MAX(payment_id), 0) + 1 as next_payment_id
+        FROM billpayments
+      `;
+      const maxPaymentIdResult = await client.query(maxPaymentIdQuery);
+      const nextPaymentId = maxPaymentIdResult.rows[0].next_payment_id;
 
-    // Get the next payment_id
-    const { data: maxPaymentId } = await supabaseAdmin
-      .from('billpayments')
-      .select('payment_id')
-      .order('payment_id', { ascending: false })
-      .limit(1)
-      .single();
+      // Record bill payment
+      const billPaymentQuery = `
+        INSERT INTO billpayments (
+          payment_id, account_id, biller_name, 
+          biller_account_number, amount, payment_date
+        )
+        VALUES (
+          $1, $2, $3,
+          $4, $5, $6
+        )
+        RETURNING payment_id
+      `;
+      const billPaymentResult = await client.query(billPaymentQuery, [
+        nextPaymentId, accountId, billerName,
+        billerAccountNumber, amount, new Date().toISOString()
+      ]);
 
-    const nextPaymentId = (maxPaymentId?.payment_id || 0) + 1;
+      // Get the next transaction_id
+      const maxTransactionIdQuery = `
+        SELECT COALESCE(MAX(transaction_id), 0) + 1 as next_transaction_id
+        FROM transactions
+      `;
+      const maxTransactionIdResult = await client.query(maxTransactionIdQuery);
+      const nextTransactionId = maxTransactionIdResult.rows[0].next_transaction_id;
 
-    // Record bill payment
-    const { data: billPayment, error: billError } = await supabaseAdmin
-      .from('billpayments')
-      .insert({
-        payment_id: nextPaymentId,
-        account_id: accountId,
-        biller_name: billerName,
-        biller_account_number: billerAccountNumber,
-        amount: amount,
-        payment_date: new Date().toISOString()
-      })
-      .select()
-      .single();
+      // Record transaction
+      const transactionQuery = `
+        INSERT INTO transactions (
+          transaction_id, from_account_id, to_account_id,
+          amount, transaction_type, description, transaction_date
+        )
+        VALUES (
+          $1, $2, NULL,
+          $3, 'Bill Payment', 
+          $4, 
+          $5
+        )
+      `;
+      await client.query(transactionQuery, [
+        nextTransactionId, accountId,
+        amount, 
+        description || `Bill payment to ${billerName}`, 
+        new Date().toISOString()
+      ]);
 
-    if (billError) {
-      console.error('Bill payment error:', billError);
-    }
-
-    // Get the next transaction_id
-    const { data: maxTransactionId } = await supabaseAdmin
-      .from('transactions')
-      .select('transaction_id')
-      .order('transaction_id', { ascending: false })
-      .limit(1)
-      .single();
-
-    const nextTransactionId = (maxTransactionId?.transaction_id || 0) + 1;
-
-    // Record transaction
-    const { error: transactionError } = await supabaseAdmin
-      .from('transactions')
-      .insert({
-        transaction_id: nextTransactionId,
-        from_account_id: accountId,
-        to_account_id: null,
-        amount: amount,
-        transaction_type: 'Bill Payment',
-        description: description || `Bill payment to ${billerName}`,
-        transaction_date: new Date().toISOString()
-      });
-
-    if (transactionError) {
-      console.error('Transaction record error:', transactionError);
+      await client.query('COMMIT');
+      
+      return billPaymentResult.rows[0];
+    } catch (error) {
+      await client.query('ROLLBACK');
+      throw error;
     }
 
     return NextResponse.json({
       message: 'Bill payment successful',
-      paymentId: billPayment?.payment_id
+      paymentId: billPaymentResult?.payment_id
     });
 
   } catch (error) {
@@ -121,5 +137,7 @@ export async function POST(request: Request) {
       { error: 'Bill payment failed' },
       { status: 500 }
     );
+  } finally {
+    await client.end();
   }
 }

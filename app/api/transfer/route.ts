@@ -1,10 +1,14 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
-import { supabaseAdmin } from '@/lib/supabase';
+import { authOptions } from '@/lib/auth';
+import { getDbClient } from '@/lib/get-db-client';
 
 export async function POST(request: Request) {
+  const client = getDbClient();
+
   try {
+    await client.connect();
+    
     const session = await getServerSession(authOptions);
     
     if (!session || !session.user?.id) {
@@ -22,123 +26,143 @@ export async function POST(request: Request) {
       );
     }
 
-    // Begin transaction by checking from account
-    const { data: fromAccount, error: fromError } = await supabaseAdmin
-      .from('accounts')
-      .select('account_id, balance, account_number')
-      .eq('account_id', fromAccountId)
-      .eq('customer_id', session.user.id)
-      .eq('status', 'Active')
-      .single();
+    const customerId = session.user.id!; // We've already checked it exists
 
-    if (fromError || !fromAccount) {
+    // Use a transaction to ensure atomicity
+    await client.query('BEGIN');
+    
+    try {
+      // Check from account
+      const fromAccountQuery = `
+        SELECT account_id, balance, account_number
+        FROM accounts
+        WHERE account_id = $1
+          AND customer_id = $2
+          AND status = 'Active'
+        FOR UPDATE
+      `;
+      const fromAccountResult = await client.query(fromAccountQuery, [fromAccountId, customerId]);
+      const fromAccount = fromAccountResult.rows[0];
+
+      if (!fromAccount) {
+        throw new Error('Invalid source account');
+      }
+
+      if (parseFloat(fromAccount.balance) < amount) {
+        throw new Error('Insufficient balance');
+      }
+
+      // Find destination account
+      const toAccountQuery = `
+        SELECT account_id, customer_id
+        FROM accounts
+        WHERE account_number = $1
+          AND status = 'Active'
+        FOR UPDATE
+      `;
+      const toAccountResult = await client.query(toAccountQuery, [toAccountNumber]);
+      const toAccount = toAccountResult.rows[0];
+
+      if (!toAccount) {
+        throw new Error('Recipient account not found');
+      }
+
+      // Prevent transferring to the same account
+      if (fromAccount.account_id === toAccount.account_id) {
+        throw new Error('Cannot transfer to the same account');
+      }
+
+      // Perform the transfer
+      // Debit from account
+      const debitQuery = `
+        UPDATE accounts
+        SET balance = balance - $1
+        WHERE account_id = $2
+      `;
+      await client.query(debitQuery, [amount, fromAccountId]);
+
+      // Credit to account
+      const creditQuery = `
+        UPDATE accounts
+        SET balance = balance + $1
+        WHERE account_id = $2
+      `;
+      await client.query(creditQuery, [amount, toAccount.account_id]);
+
+      // Record transaction
+      const transactionQuery = `
+        INSERT INTO transactions (
+          from_account_id,
+          to_account_id,
+          amount,
+          transaction_type,
+          description,
+          transaction_date
+        ) VALUES (
+          $1,
+          $2,
+          $3,
+          'Transfer',
+          $4,
+          $5
+        )
+        RETURNING transaction_id
+      `;
+      const transactionResult = await client.query(transactionQuery, [
+        fromAccountId,
+        toAccount.account_id,
+        amount,
+        description || `Transfer to ${toAccountNumber}`,
+        new Date().toISOString()
+      ]);
+      const transaction = transactionResult.rows[0];
+
+      await client.query('COMMIT');
+      
+      return NextResponse.json({
+        message: 'Transfer successful',
+        transactionId: transaction.transaction_id
+      });
+      
+    } catch (error) {
+      await client.query('ROLLBACK');
+      throw error;
+    }
+
+  } catch (error: any) {
+    console.error('Transfer error:', error);
+    
+    // Handle specific error messages
+    if (error.message && error.message.includes('Invalid source account')) {
       return NextResponse.json(
         { error: 'Invalid source account' },
         { status: 400 }
       );
     }
-
-    if (parseFloat(fromAccount.balance) < amount) {
+    if (error.message && error.message.includes('Insufficient balance')) {
       return NextResponse.json(
         { error: 'Insufficient balance' },
         { status: 400 }
       );
     }
-
-    // Find destination account
-    const { data: toAccount, error: toError } = await supabaseAdmin
-      .from('accounts')
-      .select('account_id, customer_id')
-      .eq('account_number', toAccountNumber)
-      .eq('status', 'Active')
-      .single();
-
-    if (toError || !toAccount) {
+    if (error.message && error.message.includes('Recipient account not found')) {
       return NextResponse.json(
         { error: 'Recipient account not found' },
         { status: 400 }
       );
     }
-
-    // Prevent transferring to the same account
-    if (fromAccount.account_id === toAccount.account_id) {
+    if (error.message && error.message.includes('Cannot transfer to the same account')) {
       return NextResponse.json(
         { error: 'Cannot transfer to the same account' },
         { status: 400 }
       );
     }
-
-    // Perform the transfer
-    // Debit from account
-    const { error: debitError } = await supabaseAdmin
-      .from('accounts')
-      .update({ balance: parseFloat(fromAccount.balance) - amount })
-      .eq('account_id', fromAccountId);
-
-    if (debitError) {
-      throw debitError;
-    }
-
-    // Credit to account
-    const { data: toAccountBalance } = await supabaseAdmin
-      .from('accounts')
-      .select('balance')
-      .eq('account_id', toAccount.account_id)
-      .single();
-
-    const { error: creditError } = await supabaseAdmin
-      .from('accounts')
-      .update({ balance: parseFloat(toAccountBalance.balance) + amount })
-      .eq('account_id', toAccount.account_id);
-
-    if (creditError) {
-      // Rollback debit
-      await supabaseAdmin
-        .from('accounts')
-        .update({ balance: fromAccount.balance })
-        .eq('account_id', fromAccountId);
-      throw creditError;
-    }
-
-    // Get the next transaction_id
-    const { data: maxTransactionId } = await supabaseAdmin
-      .from('transactions')
-      .select('transaction_id')
-      .order('transaction_id', { ascending: false })
-      .limit(1)
-      .single();
-
-    const nextTransactionId = (maxTransactionId?.transaction_id || 0) + 1;
-
-    // Record transaction
-    const { data: transaction, error: transactionError } = await supabaseAdmin
-      .from('transactions')
-      .insert({
-        transaction_id: nextTransactionId,
-        from_account_id: fromAccountId,
-        to_account_id: toAccount.account_id,
-        amount: amount,
-        transaction_type: 'Transfer',
-        description: description || `Transfer to ${toAccountNumber}`,
-        transaction_date: new Date().toISOString()
-      })
-      .select()
-      .single();
-
-    if (transactionError) {
-      console.error('Transaction record error:', transactionError);
-    }
-
-    return NextResponse.json({
-      message: 'Transfer successful',
-      transactionId: transaction?.transaction_id
-    });
-
-  } catch (error) {
-    console.error('Transfer error:', error);
+    
     return NextResponse.json(
       { error: 'Transfer failed' },
       { status: 500 }
     );
+  } finally {
+    await client.end();
   }
 }

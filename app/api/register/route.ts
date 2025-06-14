@@ -1,8 +1,12 @@
 import { NextResponse } from 'next/server';
-import { supabaseAdmin } from '@/lib/supabase';
+import { getDbClient } from '@/lib/get-db-client';
 
 export async function POST(request: Request) {
+  const client = getDbClient();
+
   try {
+    await client.connect();
+    
     const body = await request.json();
     const { firstName, lastName, email, password, phoneNumber, address, dateOfBirth } = body;
 
@@ -15,108 +19,103 @@ export async function POST(request: Request) {
     }
 
     // Check if user already exists
-    const { data: existingUser } = await supabaseAdmin
-      .from('customers')
-      .select('customer_id')
-      .eq('email', email)
-      .single();
+    const existingUsersQuery = `
+      SELECT customer_id
+      FROM customers
+      WHERE email = $1
+    `;
+    const existingUsersResult = await client.query(existingUsersQuery, [email]);
+    const existingUsers = existingUsersResult.rows;
 
-    if (existingUser) {
+    if (existingUsers.length > 0) {
       return NextResponse.json(
         { error: 'User with this email already exists' },
         { status: 400 }
       );
     }
 
-    // Get the next customer_id
-    const { data: maxIdResult } = await supabaseAdmin
-      .from('customers')
-      .select('customer_id')
-      .order('customer_id', { ascending: false })
-      .limit(1)
-      .single();
+    // Use a transaction to ensure data consistency
+    await client.query('BEGIN');
+    
+    try {
+      // Get the next customer_id
+      const maxIdQuery = `
+        SELECT COALESCE(MAX(customer_id), 0) + 1 as next_customer_id
+        FROM customers
+      `;
+      const maxIdResult = await client.query(maxIdQuery);
+      const nextCustomerId = maxIdResult.rows[0].next_customer_id;
 
-    const nextCustomerId = (maxIdResult?.customer_id || 0) + 1;
+      // Insert new customer with plain text password
+      const newCustomerQuery = `
+        INSERT INTO customers (
+          customer_id, first_name, last_name, email,
+          password, phone_number, address, date_of_birth
+        )
+        VALUES (
+          $1, $2, $3, $4,
+          $5, $6, $7, $8
+        )
+        RETURNING customer_id
+      `;
+      const newCustomerResult = await client.query(newCustomerQuery, [
+        nextCustomerId, firstName, lastName, email,
+        password, phoneNumber || null, address || null, dateOfBirth || null
+      ]);
 
-    // Insert new customer with plain text password
-    const { data: newCustomer, error: insertError } = await supabaseAdmin
-      .from('customers')
-      .insert({
-        customer_id: nextCustomerId,
-        first_name: firstName,
-        last_name: lastName,
-        email: email,
-        password: password, // Using plain text password
-        phone_number: phoneNumber || null,
-        address: address || null,
-        date_of_birth: dateOfBirth || null
-      })
-      .select()
-      .single();
+      const customerId = newCustomerResult.rows[0].customer_id;
 
-    if (insertError) {
-      console.error('Insert error:', insertError);
-      throw insertError;
-    }
+      // Generate account numbers
+      const checkingAccountNumber = `CHK${Date.now()}${Math.floor(Math.random() * 1000)}`;
+      const savingsAccountNumber = `SAV${Date.now()}${Math.floor(Math.random() * 1000)}`;
 
-    const customerId = newCustomer.customer_id;
+      // Get the next account_id for checking account
+      const maxCheckingIdQuery = `
+        SELECT COALESCE(MAX(account_id), 0) + 1 as next_account_id
+        FROM accounts
+      `;
+      const maxCheckingIdResult = await client.query(maxCheckingIdQuery);
+      const nextCheckingAccountId = maxCheckingIdResult.rows[0].next_account_id;
 
-    // Generate account numbers
-    const checkingAccountNumber = `CHK${Date.now()}${Math.floor(Math.random() * 1000)}`;
-    const savingsAccountNumber = `SAV${Date.now()}${Math.floor(Math.random() * 1000)}`;
+      // Create checking account
+      const createCheckingQuery = `
+        INSERT INTO accounts (
+          account_id, customer_id, account_number,
+          account_type, balance, status
+        )
+        VALUES (
+          $1, $2, $3,
+          'Checking', 0.00, 'Active'
+        )
+      `;
+      await client.query(createCheckingQuery, [
+        nextCheckingAccountId, customerId, checkingAccountNumber
+      ]);
 
-    // Get the next account_id for checking account
-    const { data: maxCheckingId } = await supabaseAdmin
-      .from('accounts')
-      .select('account_id')
-      .order('account_id', { ascending: false })
-      .limit(1)
-      .single();
+      // Get the next account_id for savings account
+      const nextSavingsAccountId = nextCheckingAccountId + 1;
 
-    const nextCheckingAccountId = (maxCheckingId?.account_id || 0) + 1;
+      // Create savings account
+      const createSavingsQuery = `
+        INSERT INTO accounts (
+          account_id, customer_id, account_number,
+          account_type, balance, status
+        )
+        VALUES (
+          $1, $2, $3,
+          'Savings', 0.00, 'Active'
+        )
+      `;
+      await client.query(createSavingsQuery, [
+        nextSavingsAccountId, customerId, savingsAccountNumber
+      ]);
 
-    // Create checking account
-    const { error: checkingError } = await supabaseAdmin
-      .from('accounts')
-      .insert({
-        account_id: nextCheckingAccountId,
-        customer_id: customerId,
-        account_number: checkingAccountNumber,
-        account_type: 'Checking',
-        balance: 0.00,
-        status: 'Active'
-      });
-
-    if (checkingError) {
-      console.error('Checking account error:', checkingError);
-      throw checkingError;
-    }
-
-    // Get the next account_id for savings account
-    const { data: maxSavingsId } = await supabaseAdmin
-      .from('accounts')
-      .select('account_id')
-      .order('account_id', { ascending: false })
-      .limit(1)
-      .single();
-
-    const nextSavingsAccountId = (maxSavingsId?.account_id || 0) + 1;
-
-    // Create savings account
-    const { error: savingsError } = await supabaseAdmin
-      .from('accounts')
-      .insert({
-        account_id: nextSavingsAccountId,
-        customer_id: customerId,
-        account_number: savingsAccountNumber,
-        account_type: 'Savings',
-        balance: 0.00,
-        status: 'Active'
-      });
-
-    if (savingsError) {
-      console.error('Savings account error:', savingsError);
-      throw savingsError;
+      await client.query('COMMIT');
+      
+      return customerId;
+    } catch (error) {
+      await client.query('ROLLBACK');
+      throw error;
     }
 
     return NextResponse.json(
@@ -129,5 +128,7 @@ export async function POST(request: Request) {
       { error: 'Failed to register user' },
       { status: 500 }
     );
+  } finally {
+    await client.end();
   }
 }

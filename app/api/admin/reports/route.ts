@@ -1,228 +1,184 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
-import { supabaseAdmin } from '@/lib/supabase';
+import { authOptions } from '@/lib/auth';
+import { getDbClient } from '@/lib/get-db-client';
 
 export async function GET() {
+  const client = getDbClient();
+
   try {
+    await client.connect();
+    
     const session = await getServerSession(authOptions);
     
     if (!session || !session.user?.userType || session.user.userType !== 'employee') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Get all customers with their accounts
-    const { data: allCustomers } = await supabaseAdmin
-      .from('customers')
-      .select(`
-        customer_id,
-        first_name,
-        last_name,
-        email,
-        accounts(balance, account_type)
-      `);
+    // Advanced Query 1: High-Value Customers with Approved Loans
+    const highValueCustomersQuery = `
+      SELECT 
+        c.customer_id,
+        c.first_name,
+        c.last_name,
+        SUM(a.balance) AS total_balance
+      FROM customers c
+      INNER JOIN accounts a ON c.customer_id = a.customer_id
+      WHERE EXISTS (
+        SELECT 1 
+        FROM loans l 
+        WHERE l.customer_id = c.customer_id 
+          AND l.status = 'Approved'
+      )
+      GROUP BY c.customer_id, c.first_name, c.last_name
+      HAVING SUM(a.balance) > 75000
+      ORDER BY total_balance DESC
+      LIMIT 10
+    `;
+    const highValueCustomersResult = await client.query(highValueCustomersQuery);
+    const highValueCustomers = highValueCustomersResult.rows;
 
-    // Separately get customers with loans for high-value customer analysis
-    const { data: customersWithLoans } = await supabaseAdmin
-      .from('customers')
-      .select(`
-        customer_id,
-        first_name,
-        last_name,
-        email,
-        accounts(balance, account_type),
-        loans!inner(status)
-      `);
-
-    const highValueCustomers = [];
-    for (const customer of customersWithLoans || []) {
-      const totalBalance = customer.accounts?.reduce((sum, acc) => 
-        sum + parseFloat(acc.balance || 0), 0) || 0;
-      
-      const hasApprovedLoan = customer.loans?.some(loan => loan.status === 'Approved');
-      
-      if (totalBalance > 75000 && hasApprovedLoan) {
-        highValueCustomers.push({
-          customer_id: customer.customer_id,
-          first_name: customer.first_name,
-          last_name: customer.last_name,
-          total_balance: totalBalance
-        });
-      }
-    }
-
-    // Sort and limit to top 10
-    highValueCustomers.sort((a, b) => b.total_balance - a.total_balance);
-    const topHighValueCustomers = highValueCustomers.slice(0, 10);
-
-    // Advanced Query 3: Inactive Customers (actual implementation)
-    const inactiveCustomers = [];
-    const sixMonthsAgo = new Date();
-    sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
-    const sixMonthsAgoISO = sixMonthsAgo.toISOString();
-
-    // Get all transactions from the last 6 months to find active customers
-    const { data: recentTransactions } = await supabaseAdmin
-      .from('transactions')
-      .select('from_account_id, to_account_id')
-      .gte('transaction_date', sixMonthsAgoISO);
-
-    // Get all accounts to map to customers
-    const { data: allAccounts } = await supabaseAdmin
-      .from('accounts')
-      .select('account_id, customer_id');
-
-    // Create a set of active customer IDs
-    const activeCustomerIds = new Set();
-    if (recentTransactions && allAccounts) {
-      const accountToCustomerMap = new Map();
-      allAccounts.forEach(account => {
-        accountToCustomerMap.set(account.account_id, account.customer_id);
-      });
-
-      recentTransactions.forEach(transaction => {
-        if (transaction.from_account_id) {
-          const customerId = accountToCustomerMap.get(transaction.from_account_id);
-          if (customerId) activeCustomerIds.add(customerId);
-        }
-        if (transaction.to_account_id) {
-          const customerId = accountToCustomerMap.get(transaction.to_account_id);
-          if (customerId) activeCustomerIds.add(customerId);
-        }
-      });
-    }
-
-    // Find inactive customers from all customers
-    for (const customer of allCustomers || []) {
-      if (!activeCustomerIds.has(customer.customer_id)) {
-        // Calculate months since last transaction (for demo, we'll use a fixed value)
-        // In a real implementation, you would query the last transaction date
-        inactiveCustomers.push({
-          customer_id: customer.customer_id,
-          first_name: customer.first_name,
-          last_name: customer.last_name,
-          email: customer.email || '',
-          months_inactive: 6 // Minimum 6 months as per our query
-        });
-      }
-    }
+    // Advanced Query 3: Inactive Customers (no transactions in last 6 months)
+    const inactiveCustomersQuery = `
+      WITH active_customers AS (
+        SELECT DISTINCT a.customer_id
+        FROM accounts a
+        INNER JOIN transactions t ON (a.account_id = t.from_account_id OR a.account_id = t.to_account_id)
+        WHERE t.transaction_date >= CURRENT_DATE - INTERVAL '6 months'
+      )
+      SELECT 
+        c.customer_id,
+        c.first_name,
+        c.last_name,
+        c.email,
+        6 as months_inactive
+      FROM customers c
+      WHERE NOT EXISTS (
+        SELECT 1 FROM active_customers ac WHERE ac.customer_id = c.customer_id
+      )
+      AND EXISTS (
+        SELECT 1 FROM accounts a WHERE a.customer_id = c.customer_id
+      )
+      LIMIT 10
+    `;
+    const inactiveCustomersResult = await client.query(inactiveCustomersQuery);
+    const inactiveCustomers = inactiveCustomersResult.rows;
 
     // Advanced Query 4: Loan Officer Performance
-    const { data: employees } = await supabaseAdmin
-      .from('employees')
-      .select(`
-        employee_id,
-        first_name,
-        last_name,
-        loans!approved_by_employee_id(loan_id, loan_amount, status)
-      `)
-      .in('role', ['Loan Officer', 'Admin']);
-
-    const loanPerformance = employees?.map(employee => {
-      const approvedLoans = employee.loans?.filter(loan => loan.status === 'Approved') || [];
-      const totalApprovedValue = approvedLoans.reduce((sum, loan) => 
-        sum + parseFloat(loan.loan_amount || 0), 0);
-
-      return {
-        employee_id: employee.employee_id,
-        first_name: employee.first_name,
-        last_name: employee.last_name,
-        approved_loans_count: approvedLoans.length,
-        total_approved_value: totalApprovedValue
-      };
-    }) || [];
-
-    // Sort by total approved value
-    loanPerformance.sort((a, b) => b.total_approved_value - a.total_approved_value);
+    const loanPerformanceQuery = `
+      SELECT 
+        e.employee_id,
+        e.first_name,
+        e.last_name,
+        COUNT(CASE WHEN l.status = 'Approved' THEN 1 END) AS approved_loans_count,
+        COALESCE(SUM(CASE WHEN l.status = 'Approved' THEN l.loan_amount END), 0) AS total_approved_value
+      FROM employees e
+      LEFT JOIN loans l ON e.employee_id = l.approved_by_employee_id
+      WHERE e.role IN ('Loan Officer', 'Admin')
+      GROUP BY e.employee_id, e.first_name, e.last_name
+      ORDER BY total_approved_value DESC
+    `;
+    const loanPerformanceResult = await client.query(loanPerformanceQuery);
+    const loanPerformance = loanPerformanceResult.rows;
 
     // Advanced Query 5: Customer Account Types Distribution
-    let checkingOnly = 0;
-    let savingsOnly = 0;
-    let bothTypes = 0;
-    let noAccounts = 0;
+    const customerAccountTypesQuery = `
+      WITH customer_account_summary AS (
+        SELECT 
+          c.customer_id,
+          BOOL_OR(a.account_type = 'Checking') AS has_checking,
+          BOOL_OR(a.account_type = 'Savings') AS has_savings,
+          COUNT(a.account_id) AS account_count
+        FROM customers c
+        LEFT JOIN accounts a ON c.customer_id = a.customer_id
+        GROUP BY c.customer_id
+      )
+      SELECT 
+        CASE 
+          WHEN account_count = 0 THEN 'No Accounts'
+          WHEN has_checking AND has_savings THEN 'Both Types'
+          WHEN has_checking THEN 'Checking Only'
+          WHEN has_savings THEN 'Savings Only'
+          ELSE 'No Accounts'
+        END AS type,
+        COUNT(*) AS count
+      FROM customer_account_summary
+      GROUP BY type
+      ORDER BY count DESC
+    `;
+    const customerAccountTypesResult = await client.query(customerAccountTypesQuery);
+    const customerAccountTypes = customerAccountTypesResult.rows;
 
-    allCustomers?.forEach(customer => {
-      const accountTypes = new Set(customer.accounts?.map(acc => acc.account_type) || []);
-      
-      if (accountTypes.size === 0) {
-        noAccounts++;
-      } else if (accountTypes.has('Checking') && accountTypes.has('Savings')) {
-        bothTypes++;
-      } else if (accountTypes.has('Checking')) {
-        checkingOnly++;
-      } else if (accountTypes.has('Savings')) {
-        savingsOnly++;
-      }
-    });
+    // Monthly Transaction Volume
+    const monthlyTransactionVolumeQuery = `
+      WITH months AS (
+        SELECT generate_series(
+          date_trunc('month', CURRENT_DATE - INTERVAL '11 months'),
+          date_trunc('month', CURRENT_DATE),
+          '1 month'::interval
+        ) AS month
+      ),
+      monthly_data AS (
+        SELECT 
+          date_trunc('month', transaction_date) AS month,
+          SUM(amount) AS total_volume,
+          COUNT(*) AS transaction_count
+        FROM transactions
+        WHERE transaction_date >= date_trunc('month', CURRENT_DATE - INTERVAL '11 months')
+        GROUP BY date_trunc('month', transaction_date)
+      )
+      SELECT 
+        TO_CHAR(m.month, 'Mon YYYY') AS month,
+        COALESCE(md.total_volume, 0)::numeric AS total_volume,
+        COALESCE(md.transaction_count, 0)::int AS transaction_count
+      FROM months m
+      LEFT JOIN monthly_data md ON m.month = md.month
+      ORDER BY m.month
+    `;
+    const monthlyTransactionVolumeResult = await client.query(monthlyTransactionVolumeQuery);
+    const monthlyTransactionVolume = monthlyTransactionVolumeResult.rows;
 
-    const customerAccountTypes = [
-      { type: 'Checking Only', count: checkingOnly },
-      { type: 'Savings Only', count: savingsOnly },
-      { type: 'Both Types', count: bothTypes },
-      { type: 'No Accounts', count: noAccounts }
-    ];
+    // Format the response
+    const formattedHighValueCustomers = highValueCustomers.map(customer => ({
+      customer_id: customer.customer_id,
+      first_name: customer.first_name,
+      last_name: customer.last_name,
+      total_balance: parseFloat(customer.total_balance)
+    }));
 
-    // Monthly Transaction Volume from actual database
-    const monthlyTransactionVolume = [];
-    const currentDate = new Date();
-    
-    // Query all transactions to get date range and volume
-    const { data: allTransactions } = await supabaseAdmin
-      .from('transactions')
-      .select('amount, transaction_date')
-      .order('transaction_date', { ascending: true });
-    
-    // Get the date range from actual data
-    let oldestDate = new Date();
-    let newestDate = new Date();
-    
-    if (allTransactions && allTransactions.length > 0) {
-      oldestDate = new Date(allTransactions[0].transaction_date);
-      newestDate = new Date(allTransactions[allTransactions.length - 1].transaction_date);
-    }
-    
-    // Initialize months based on data range (up to 12 months)
-    const volumeByMonth = new Map();
-    const monthsToShow = 12;
-    
-    for (let i = monthsToShow - 1; i >= 0; i--) {
-      const date = new Date(newestDate.getFullYear(), newestDate.getMonth() - i, 1);
-      const monthKey = date.toLocaleString('default', { month: 'short', year: 'numeric' });
-      volumeByMonth.set(monthKey, { total_volume: 0, transaction_count: 0 });
-    }
-    
-    // Aggregate transactions by month
-    if (allTransactions) {
-      for (const transaction of allTransactions) {
-        if (transaction.transaction_date) {
-          const transDate = new Date(transaction.transaction_date);
-          const monthKey = transDate.toLocaleString('default', { month: 'short', year: 'numeric' });
-          if (volumeByMonth.has(monthKey)) {
-            const current = volumeByMonth.get(monthKey);
-            volumeByMonth.set(monthKey, {
-              total_volume: current.total_volume + parseFloat(transaction.amount || 0),
-              transaction_count: current.transaction_count + 1
-            });
-          }
-        }
-      }
-    }
-    
-    // Convert to array
-    for (const [month, data] of volumeByMonth) {
-      monthlyTransactionVolume.push({
-        month,
-        total_volume: data.total_volume,
-        transaction_count: data.transaction_count
-      });
-    }
+    const formattedInactiveCustomers = inactiveCustomers.map(customer => ({
+      customer_id: customer.customer_id,
+      first_name: customer.first_name,
+      last_name: customer.last_name,
+      email: customer.email || '',
+      months_inactive: customer.months_inactive
+    }));
+
+    const formattedLoanPerformance = loanPerformance.map(employee => ({
+      employee_id: employee.employee_id,
+      first_name: employee.first_name,
+      last_name: employee.last_name,
+      approved_loans_count: parseInt(employee.approved_loans_count),
+      total_approved_value: parseFloat(employee.total_approved_value)
+    }));
+
+    const formattedCustomerAccountTypes = customerAccountTypes.map(type => ({
+      type: type.type,
+      count: parseInt(type.count)
+    }));
+
+    const formattedMonthlyTransactionVolume = monthlyTransactionVolume.map(month => ({
+      month: month.month,
+      total_volume: parseFloat(month.total_volume),
+      transaction_count: parseInt(month.transaction_count)
+    }));
 
     return NextResponse.json({
-      highValueCustomers: topHighValueCustomers,
-      inactiveCustomers: inactiveCustomers.slice(0, 10),
-      loanPerformance,
-      customerAccountTypes,
-      monthlyTransactionVolume
+      highValueCustomers: formattedHighValueCustomers,
+      inactiveCustomers: formattedInactiveCustomers,
+      loanPerformance: formattedLoanPerformance,
+      customerAccountTypes: formattedCustomerAccountTypes,
+      monthlyTransactionVolume: formattedMonthlyTransactionVolume
     });
   } catch (error) {
     console.error('Error generating reports:', error);
@@ -230,5 +186,7 @@ export async function GET() {
       { error: 'Failed to generate reports' },
       { status: 500 }
     );
+  } finally {
+    await client.end();
   }
 }

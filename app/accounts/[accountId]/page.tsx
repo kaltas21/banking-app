@@ -159,7 +159,7 @@ export default function AccountDetailPage() {
                 type="date"
                 value={filter.dateFrom}
                 onChange={(e) => setFilter({ ...filter, dateFrom: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-gray-900 bg-white"
               />
             </div>
             <div>
@@ -170,7 +170,7 @@ export default function AccountDetailPage() {
                 type="date"
                 value={filter.dateTo}
                 onChange={(e) => setFilter({ ...filter, dateTo: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-gray-900 bg-white"
               />
             </div>
             <div>
@@ -180,7 +180,7 @@ export default function AccountDetailPage() {
               <select
                 value={filter.transactionType}
                 onChange={(e) => setFilter({ ...filter, transactionType: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-gray-900 bg-white"
               >
                 <option value="">All Types</option>
                 <option value="Transfer">Transfer</option>

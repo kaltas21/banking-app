@@ -4,7 +4,7 @@ import { useSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { CreditCard, Send, FileText, LogOut } from 'lucide-react';
+import { CreditCard, Send, FileText, LogOut, BarChart3 } from 'lucide-react';
 import { signOut } from 'next-auth/react';
 
 interface Account {
@@ -185,6 +185,17 @@ export default function DashboardPage() {
               </div>
             </Link>
           </div>
+        </div>
+
+        {/* Analytics Section */}
+        <div className="mb-8">
+          <Link
+            href="/dashboard/analytics"
+            className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 mb-4"
+          >
+            <BarChart3 className="h-5 w-5" />
+            <span className="font-medium">View Detailed Analytics</span>
+          </Link>
         </div>
 
         {/* Recent Transactions */}

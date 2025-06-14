@@ -1,13 +1,17 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
-import { supabaseAdmin } from '@/lib/supabase';
+import { authOptions } from '@/lib/auth';
+import { getDbClient } from '@/lib/get-db-client';
 
 export async function PUT(
   request: Request,
-  { params }: { params: { loanId: string } }
+  { params }: { params: Promise<{ loanId: string }> }
 ) {
+  const client = getDbClient();
+
   try {
+    await client.connect();
+    
     const session = await getServerSession(authOptions);
     
     if (!session || !session.user?.userType || session.user.userType !== 'employee') {
@@ -32,102 +36,103 @@ export async function PUT(
       );
     }
 
-    const loanId = params.loanId;
+    const { loanId } = await params;
 
     // Get loan details
-    const { data: loan, error: loanError } = await supabaseAdmin
-      .from('loans')
-      .select('*')
-      .eq('loan_id', loanId)
-      .eq('status', 'Pending')
-      .single();
+    const loanQuery = `
+      SELECT *
+      FROM loans
+      WHERE loan_id = $1
+        AND status = 'Pending'
+    `;
+    const loanResult = await client.query(loanQuery, [loanId]);
+    const loans = loanResult.rows;
 
-    if (loanError || !loan) {
+    if (loans.length === 0) {
       return NextResponse.json(
         { error: 'Loan not found or already processed' },
         { status: 404 }
       );
     }
 
+    const loan = loans[0];
+
     const newStatus = decision === 'approve' ? 'Approved' : 'Rejected';
+    const employeeId = session.user.id!; // We've already checked it exists
 
-    // Update loan status
-    const { error: updateError } = await supabaseAdmin
-      .from('loans')
-      .update({ 
-        status: newStatus,
-        approved_by_employee_id: session.user.id
-      })
-      .eq('loan_id', loanId);
+    // Use a transaction for atomicity
+    await client.query('BEGIN');
+    
+    try {
+      // Update loan status
+      const updateLoanQuery = `
+        UPDATE loans
+        SET status = $1,
+            approved_by_employee_id = $2
+        WHERE loan_id = $3
+      `;
+      await client.query(updateLoanQuery, [newStatus, employeeId, loanId]);
 
-    if (updateError) {
-      throw updateError;
-    }
+      // If approved, deposit the loan amount into customer's primary checking account
+      if (decision === 'approve') {
+        // Find customer's primary checking account
+        const findAccountQuery = `
+          SELECT account_id, balance
+          FROM accounts
+          WHERE customer_id = $1
+            AND account_type = 'Checking'
+            AND status = 'Active'
+          ORDER BY account_id
+          LIMIT 1
+        `;
+        const accountResult = await client.query(findAccountQuery, [loan.customer_id]);
+        const accounts = accountResult.rows;
 
-    // If approved, deposit the loan amount into customer's primary checking account
-    if (decision === 'approve') {
-      // Find customer's primary checking account
-      const { data: accounts } = await supabaseAdmin
-        .from('accounts')
-        .select('account_id, balance')
-        .eq('customer_id', loan.customer_id)
-        .eq('account_type', 'Checking')
-        .eq('status', 'Active')
-        .order('account_id')
-        .limit(1);
+        if (accounts.length === 0) {
+          throw new Error('Customer has no active checking account');
+        }
 
-      if (!accounts || accounts.length === 0) {
-        // Rollback loan approval
-        await supabaseAdmin
-          .from('loans')
-          .update({ status: 'Pending', approved_by_employee_id: null })
-          .eq('loan_id', loanId);
+        const account = accounts[0];
 
-        return NextResponse.json(
-          { error: 'Customer has no active checking account' },
-          { status: 400 }
-        );
+        // Deposit loan amount
+        const depositQuery = `
+          UPDATE accounts
+          SET balance = balance + $1
+          WHERE account_id = $2
+        `;
+        await client.query(depositQuery, [parseFloat(loan.loan_amount), account.account_id]);
+
+        // Get the next transaction_id
+        const maxTransactionIdQuery = `
+          SELECT COALESCE(MAX(transaction_id), 0) + 1 as next_transaction_id
+          FROM transactions
+        `;
+        const maxTransactionIdResult = await client.query(maxTransactionIdQuery);
+        const nextTransactionId = maxTransactionIdResult.rows[0].next_transaction_id;
+
+        // Record the deposit transaction
+        const insertTransactionQuery = `
+          INSERT INTO transactions (
+            transaction_id, from_account_id, to_account_id,
+            amount, transaction_type, description, transaction_date
+          )
+          VALUES (
+            $1, NULL, $2,
+            $3, 'Deposit', 'Loan disbursement', $4
+          )
+        `;
+        await client.query(insertTransactionQuery, [
+          nextTransactionId, 
+          account.account_id,
+          loan.loan_amount, 
+          new Date().toISOString()
+        ]);
       }
-
-      const account = accounts[0];
-
-      // Deposit loan amount
-      const { error: depositError } = await supabaseAdmin
-        .from('accounts')
-        .update({ balance: parseFloat(account.balance) + parseFloat(loan.loan_amount) })
-        .eq('account_id', account.account_id);
-
-      if (depositError) {
-        // Rollback loan approval
-        await supabaseAdmin
-          .from('loans')
-          .update({ status: 'Pending', approved_by_employee_id: null })
-          .eq('loan_id', loanId);
-        throw depositError;
-      }
-
-      // Get the next transaction_id
-      const { data: maxTransactionId } = await supabaseAdmin
-        .from('transactions')
-        .select('transaction_id')
-        .order('transaction_id', { ascending: false })
-        .limit(1)
-        .single();
-
-      const nextTransactionId = (maxTransactionId?.transaction_id || 0) + 1;
-
-      // Record the deposit transaction
-      await supabaseAdmin
-        .from('transactions')
-        .insert({
-          transaction_id: nextTransactionId,
-          from_account_id: null,
-          to_account_id: account.account_id,
-          amount: loan.loan_amount,
-          transaction_type: 'Deposit',
-          description: 'Loan disbursement',
-          transaction_date: new Date().toISOString()
-        });
+      
+      await client.query('COMMIT');
+    } catch (error) {
+      await client.query('ROLLBACK');
+      throw error;
     }
 
     return NextResponse.json({
@@ -142,5 +147,7 @@ export async function PUT(
       { error: 'Failed to process loan decision' },
       { status: 500 }
     );
+  } finally {
+    await client.end();
   }
 }

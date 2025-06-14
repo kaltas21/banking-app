@@ -204,7 +204,7 @@ export default function LoansPage() {
                     max="100000"
                     value={formData.loanAmount}
                     onChange={(e) => setFormData({ ...formData, loanAmount: e.target.value })}
-                    className="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-gray-900 bg-white"
                     placeholder="Enter loan amount"
                     required
                   />
@@ -221,7 +221,7 @@ export default function LoansPage() {
                 <select
                   value={formData.termMonths}
                   onChange={(e) => setFormData({ ...formData, termMonths: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-gray-900 bg-white"
                   required
                 >
                   <option value="12">12 months</option>
