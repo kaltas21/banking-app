@@ -211,20 +211,40 @@ export default function AdminDashboard() {
               Monthly Transaction Volume
             </h2>
             <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={stats.monthlyTransactions}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="month" />
-                <YAxis />
-                <Tooltip formatter={(value: number) => `$${value.toLocaleString()}`} />
-                <Legend />
-                <Line 
-                  type="monotone" 
-                  dataKey="volume" 
-                  stroke="#3B82F6" 
-                  strokeWidth={2}
-                  name="Transaction Volume ($)"
-                />
-              </LineChart>
+              {(() => {
+                // Calculate maximum value with 20% padding
+                const maxVolume = Math.max(...stats.monthlyTransactions.map(item => item.volume), 0);
+                const roundedMax = Math.ceil(maxVolume * 1.2 / 50000) * 50000; // Round up to nearest 50k
+                
+                // Generate dynamic ticks - divide the range into 5 equal parts
+                const tickStep = roundedMax / 5;
+                const dynamicTicks = Array.from({length: 6}, (_, i) => Math.round(i * tickStep));
+                
+                return (
+                  <LineChart 
+                    data={stats.monthlyTransactions}
+                    margin={{ top: 20, right: 30, left: 20, bottom: 10 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="month" />
+                    <YAxis 
+                      domain={[0, roundedMax]}
+                      tickFormatter={(value: number) => `${value.toLocaleString()}`}
+                      ticks={dynamicTicks}
+                    />
+                    <Tooltip formatter={(value: number) => `$${value.toLocaleString()}`} />
+                    <Legend />
+                    <Line 
+                      type="monotone" 
+                      dataKey="volume" 
+                      stroke="#3B82F6" 
+                      strokeWidth={2}
+                      name="Transaction Volume ($)"
+                      dot={{ strokeWidth: 2 }}
+                    />
+                  </LineChart>
+                );
+              })()}
             </ResponsiveContainer>
           </div>
 
