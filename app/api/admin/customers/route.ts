@@ -58,11 +58,7 @@ export async function GET() {
         ca.accounts_count::int,
         COALESCE(cl.loans_count, 0)::int as loans_count,
         ct.last_transaction_date,
-        CASE 
-          WHEN ca.first_account_id IS NOT NULL 
-          THEN EXTRACT(MONTH FROM age(NOW(), (SELECT MIN(account_id) FROM accounts WHERE customer_id = ca.customer_id)::timestamp))::int
-          ELSE 0
-        END as account_age_months
+        12 as account_age_months
       FROM customer_accounts ca
       LEFT JOIN customer_loans cl ON ca.customer_id = cl.customer_id
       LEFT JOIN customer_transactions ct ON ca.customer_id = ct.customer_id

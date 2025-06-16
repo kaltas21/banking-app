@@ -41,13 +41,6 @@ export async function GET() {
         FROM loans
         WHERE status = 'Approved'
         GROUP BY customer_id
-      ),
-      account_ages AS (
-        SELECT 
-          customer_id,
-          EXTRACT(DAY FROM NOW() - MIN(account_id::timestamp)) as account_age_days
-        FROM accounts
-        GROUP BY customer_id
       )
       SELECT 
         l.loan_id,
@@ -60,7 +53,7 @@ export async function GET() {
         l.status,
         l.application_date,
         cb.total_balance::numeric,
-        COALESCE(aa.account_age_days, 90)::int as account_age_days,
+        90::int as account_age_days,
         COALESCE(al.active_loans_count, 0)::int as active_loans_count,
         COALESCE(ct.avg_transaction_amount, 0)::numeric as average_transaction_amount
       FROM loans l
@@ -68,7 +61,6 @@ export async function GET() {
       LEFT JOIN customer_balances cb ON l.customer_id = cb.customer_id
       LEFT JOIN customer_transactions ct ON l.customer_id = ct.customer_id
       LEFT JOIN active_loans al ON l.customer_id = al.customer_id
-      LEFT JOIN account_ages aa ON l.customer_id = aa.customer_id
       WHERE l.status = 'Pending'
       ORDER BY l.application_date ASC
     `;

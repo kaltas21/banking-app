@@ -60,6 +60,9 @@ export default function CustomerManagementPage() {
       router.push('/login');
     } else if (status === 'authenticated') {
       fetchCustomers();
+      // Set up auto-refresh every 30 seconds
+      const interval = setInterval(fetchCustomers, 30000);
+      return () => clearInterval(interval);
     }
   }, [status, session, router]);
 

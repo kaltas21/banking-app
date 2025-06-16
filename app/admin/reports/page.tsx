@@ -37,6 +37,18 @@ interface ReportsData {
     total_volume: number;
     transaction_count: number;
   }>;
+  customerLoanDistribution: Array<{
+    customer_id: number;
+    first_name: string;
+    last_name: string;
+    total_loans: number;
+    pending_loans: number;
+    approved_loans: number;
+    rejected_loans: number;
+    paid_off_loans: number;
+    total_approved_amount: number;
+    avg_interest_rate: number;
+  }>;
 }
 
 export default function ReportsPage() {
@@ -130,7 +142,7 @@ export default function ReportsPage() {
             <div className="bg-white rounded-lg shadow p-6">
               <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
                 <DollarSign className="h-5 w-5 mr-2 text-green-600" />
-                High-Value Customers (&gt;$75k with Active Loans)
+                High-Value Customers (&gt;$75k Balance)
               </h2>
               <div className="space-y-3">
                 {reports.highValueCustomers.slice(0, 5).map((customer) => (
@@ -183,39 +195,83 @@ export default function ReportsPage() {
 
         {selectedReport === 'customers' && (
           <div className="space-y-8">
-            {/* High-Value Customers Detailed */}
+            {/* Customer Loan Distribution Analysis */}
             <div className="bg-white rounded-lg shadow p-6">
               <h2 className="text-lg font-semibold text-gray-900 mb-4">
-                High-Value Customers Analysis
+                Customer Loan Distribution Analysis
               </h2>
               <div className="overflow-x-auto">
                 <table className="min-w-full">
                   <thead className="bg-gray-50">
                     <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Customer Name
                       </th>
-                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Total Balance
+                      <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Total Loans
                       </th>
-                      <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Status
+                      <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Pending
+                      </th>
+                      <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Approved
+                      </th>
+                      <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Rejected
+                      </th>
+                      <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Paid Off
+                      </th>
+                      <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Total Approved
+                      </th>
+                      <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Avg Rate
                       </th>
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
-                    {reports.highValueCustomers.map((customer) => (
+                    {reports.customerLoanDistribution?.map((customer) => (
                       <tr key={customer.customer_id}>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
                           {customer.first_name} {customer.last_name}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-right font-medium text-gray-900">
-                          ${parseFloat(customer.total_balance.toString()).toLocaleString()}
+                        <td className="px-4 py-4 whitespace-nowrap text-sm text-center font-medium text-gray-900">
+                          {customer.total_loans}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-center">
-                          <span className="px-2 py-1 text-xs rounded-full bg-green-100 text-green-800">
-                            VIP Customer
+                        <td className="px-4 py-4 whitespace-nowrap text-sm text-center">
+                          <span className={`px-2 py-1 text-xs rounded-full ${
+                            customer.pending_loans > 0 ? 'bg-yellow-100 text-yellow-800' : 'bg-gray-100 text-gray-600'
+                          }`}>
+                            {customer.pending_loans}
                           </span>
+                        </td>
+                        <td className="px-4 py-4 whitespace-nowrap text-sm text-center">
+                          <span className={`px-2 py-1 text-xs rounded-full ${
+                            customer.approved_loans > 0 ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600'
+                          }`}>
+                            {customer.approved_loans}
+                          </span>
+                        </td>
+                        <td className="px-4 py-4 whitespace-nowrap text-sm text-center">
+                          <span className={`px-2 py-1 text-xs rounded-full ${
+                            customer.rejected_loans > 0 ? 'bg-red-100 text-red-800' : 'bg-gray-100 text-gray-600'
+                          }`}>
+                            {customer.rejected_loans}
+                          </span>
+                        </td>
+                        <td className="px-4 py-4 whitespace-nowrap text-sm text-center">
+                          <span className={`px-2 py-1 text-xs rounded-full ${
+                            customer.paid_off_loans > 0 ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-600'
+                          }`}>
+                            {customer.paid_off_loans}
+                          </span>
+                        </td>
+                        <td className="px-4 py-4 whitespace-nowrap text-sm text-right font-medium text-green-600">
+                          ${customer.total_approved_amount.toLocaleString()}
+                        </td>
+                        <td className="px-4 py-4 whitespace-nowrap text-sm text-center font-medium text-gray-900">
+                          {customer.avg_interest_rate}%
                         </td>
                       </tr>
                     ))}

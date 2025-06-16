@@ -988,3 +988,82 @@ Accounts data: [
 ]
  GET /api/accounts 200 in 567ms
  GET /api/transactions?limit=5 200 in 594ms
+ GET /api/auth/session 200 in 25ms
+ GET /api/auth/session 200 in 15ms
+Session in accounts API: {
+  user: {
+    name: 'Germaine Hanne',
+    email: 'ghanne9@ning.com',
+    image: undefined,
+    userType: 'customer',
+    role: 'customer',
+    id: '10'
+  }
+}
+Accounts data: [
+  {
+    account_id: 12,
+    account_number: 'GB87FUUZ73545270031648',
+    account_type: 'Checking',
+    balance: '139900.00',
+    status: 'Active'
+  }
+]
+ GET /api/accounts 200 in 619ms
+Session in accounts API: {
+  user: {
+    name: 'Germaine Hanne',
+    email: 'ghanne9@ning.com',
+    image: undefined,
+    userType: 'customer',
+    role: 'customer',
+    id: '10'
+  }
+}
+Accounts data: [
+  {
+    account_id: 12,
+    account_number: 'GB87FUUZ73545270031648',
+    account_type: 'Checking',
+    balance: '139900.00',
+    status: 'Active'
+  }
+]
+ GET /api/accounts 200 in 538ms
+ GET /api/transactions?limit=5 200 in 610ms
+ GET /api/transactions?limit=5 200 in 404ms
+ GET /api/auth/session 200 in 28ms
+ GET /api/auth/session 200 in 27ms
+ GET /api/auth/session 200 in 25ms
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/kaanredstone/Library/CloudStorage/OneDrive-KocUniversitesi/SPRING 2025/COMP 306/Group Project/Banking Application/banking-app/.next/server/app/login/page/app-build-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/kaanredstone/Library/CloudStorage/OneDrive-KocUniversitesi/SPRING 2025/COMP 306/Group Project/Banking Application/banking-app/.next/server/app/login/page/app-build-manifest.json'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/kaanredstone/Library/CloudStorage/OneDrive-KocUniversitesi/SPRING 2025/COMP 306/Group Project/Banking Application/banking-app/.next/server/pages/_app/build-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/kaanredstone/Library/CloudStorage/OneDrive-KocUniversitesi/SPRING 2025/COMP 306/Group Project/Banking Application/banking-app/.next/server/pages/_app/build-manifest.json'
+}
+[Error: ENOENT: no such file or directory, open '/Users/kaanredstone/Library/CloudStorage/OneDrive-KocUniversitesi/SPRING 2025/COMP 306/Group Project/Banking Application/banking-app/.next/server/app/login/page/app-build-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/kaanredstone/Library/CloudStorage/OneDrive-KocUniversitesi/SPRING 2025/COMP 306/Group Project/Banking Application/banking-app/.next/server/app/login/page/app-build-manifest.json'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/kaanredstone/Library/CloudStorage/OneDrive-KocUniversitesi/SPRING 2025/COMP 306/Group Project/Banking Application/banking-app/.next/server/pages/_app/build-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/kaanredstone/Library/CloudStorage/OneDrive-KocUniversitesi/SPRING 2025/COMP 306/Group Project/Banking Application/banking-app/.next/server/pages/_app/build-manifest.json'
+}
+[Error: ENOENT: no such file or directory, open '/Users/kaanredstone/Library/CloudStorage/OneDrive-KocUniversitesi/SPRING 2025/COMP 306/Group Project/Banking Application/banking-app/.next/server/pages/_app/build-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/kaanredstone/Library/CloudStorage/OneDrive-KocUniversitesi/SPRING 2025/COMP 306/Group Project/Banking Application/banking-app/.next/server/pages/_app/build-manifest.json'
+}
+ ✓ Compiled /favicon.ico in 280ms
+ GET /favicon.ico 200 in 518ms

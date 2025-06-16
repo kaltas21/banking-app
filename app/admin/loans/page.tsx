@@ -36,6 +36,9 @@ export default function LoanApprovalPage() {
       router.push('/login');
     } else if (status === 'authenticated') {
       fetchLoanApplications();
+      // Set up auto-refresh every 30 seconds
+      const interval = setInterval(fetchLoanApplications, 30000);
+      return () => clearInterval(interval);
     }
   }, [status, session, router]);
 

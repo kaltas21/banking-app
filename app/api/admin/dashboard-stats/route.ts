@@ -65,7 +65,7 @@ export async function GET() {
     const monthlyTransactionResult = await client.query(monthlyTransactionQuery);
     const monthlyTransactionData = monthlyTransactionResult.rows;
 
-    // Advanced Query 1: High-Value Customers with Approved Loans
+    // Advanced Query 1: High-Value Customers (>$75k balance)
     const highValueCustomersQuery = `
       SELECT 
         c.customer_id,
@@ -74,12 +74,6 @@ export async function GET() {
         SUM(a.balance) AS total_balance
       FROM customers c
       INNER JOIN accounts a ON c.customer_id = a.customer_id
-      WHERE EXISTS (
-        SELECT 1 
-        FROM loans l 
-        WHERE l.customer_id = c.customer_id 
-          AND l.status = 'Approved'
-      )
       GROUP BY c.customer_id, c.first_name, c.last_name
       HAVING SUM(a.balance) > 75000
       ORDER BY total_balance DESC

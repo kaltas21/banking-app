@@ -15,7 +15,7 @@ export async function GET() {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Advanced Query 1: High-Value Customers with Approved Loans
+    // Advanced Query 1: High-Value Customers (>$75k balance)
     const highValueCustomersQuery = `
       SELECT 
         c.customer_id,
@@ -24,12 +24,6 @@ export async function GET() {
         SUM(a.balance) AS total_balance
       FROM customers c
       INNER JOIN accounts a ON c.customer_id = a.customer_id
-      WHERE EXISTS (
-        SELECT 1 
-        FROM loans l 
-        WHERE l.customer_id = c.customer_id 
-          AND l.status = 'Approved'
-      )
       GROUP BY c.customer_id, c.first_name, c.last_name
       HAVING SUM(a.balance) > 75000
       ORDER BY total_balance DESC
@@ -138,6 +132,43 @@ export async function GET() {
     const monthlyTransactionVolumeResult = await client.query(monthlyTransactionVolumeQuery);
     const monthlyTransactionVolume = monthlyTransactionVolumeResult.rows;
 
+    // Additional Query: Customer Loan Distribution by Type
+    const customerLoanDistributionQuery = `
+      WITH customer_loan_stats AS (
+        SELECT 
+          c.customer_id,
+          c.first_name,
+          c.last_name,
+          COUNT(l.loan_id) as total_loans,
+          COUNT(CASE WHEN l.status = 'Pending' THEN 1 END) as pending_loans,
+          COUNT(CASE WHEN l.status = 'Approved' THEN 1 END) as approved_loans,
+          COUNT(CASE WHEN l.status = 'Rejected' THEN 1 END) as rejected_loans,
+          COUNT(CASE WHEN l.status = 'Paid Off' THEN 1 END) as paid_off_loans,
+          COALESCE(SUM(CASE WHEN l.status = 'Approved' THEN l.loan_amount END), 0) as total_approved_amount,
+          COALESCE(AVG(l.interest_rate), 0) as avg_interest_rate
+        FROM customers c
+        LEFT JOIN loans l ON c.customer_id = l.customer_id
+        GROUP BY c.customer_id, c.first_name, c.last_name
+        HAVING COUNT(l.loan_id) > 0
+      )
+      SELECT 
+        customer_id,
+        first_name,
+        last_name,
+        total_loans,
+        pending_loans,
+        approved_loans,
+        rejected_loans,
+        paid_off_loans,
+        total_approved_amount::numeric,
+        ROUND(avg_interest_rate::numeric, 2) as avg_interest_rate
+      FROM customer_loan_stats
+      ORDER BY total_loans DESC, total_approved_amount DESC
+      LIMIT 20
+    `;
+    const customerLoanDistributionResult = await client.query(customerLoanDistributionQuery);
+    const customerLoanDistribution = customerLoanDistributionResult.rows;
+
     // Format the response
     const formattedHighValueCustomers = highValueCustomers.map(customer => ({
       customer_id: customer.customer_id,
@@ -173,12 +204,26 @@ export async function GET() {
       transaction_count: parseInt(month.transaction_count)
     }));
 
+    const formattedCustomerLoanDistribution = customerLoanDistribution.map(customer => ({
+      customer_id: customer.customer_id,
+      first_name: customer.first_name,
+      last_name: customer.last_name,
+      total_loans: parseInt(customer.total_loans),
+      pending_loans: parseInt(customer.pending_loans),
+      approved_loans: parseInt(customer.approved_loans),
+      rejected_loans: parseInt(customer.rejected_loans),
+      paid_off_loans: parseInt(customer.paid_off_loans),
+      total_approved_amount: parseFloat(customer.total_approved_amount),
+      avg_interest_rate: parseFloat(customer.avg_interest_rate)
+    }));
+
     return NextResponse.json({
       highValueCustomers: formattedHighValueCustomers,
       inactiveCustomers: formattedInactiveCustomers,
       loanPerformance: formattedLoanPerformance,
       customerAccountTypes: formattedCustomerAccountTypes,
-      monthlyTransactionVolume: formattedMonthlyTransactionVolume
+      monthlyTransactionVolume: formattedMonthlyTransactionVolume,
+      customerLoanDistribution: formattedCustomerLoanDistribution
     });
   } catch (error) {
     console.error('Error generating reports:', error);
