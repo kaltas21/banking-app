@@ -4,7 +4,7 @@ import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import Link from 'next/link';
-import { Building2, Shield, Clock, CreditCard, ArrowRight, Sparkles, TrendingUp, Zap } from 'lucide-react';
+import { Building2, Shield, Clock, ArrowRight, TrendingUp } from 'lucide-react';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
 

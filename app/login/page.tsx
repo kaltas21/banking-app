@@ -34,7 +34,7 @@ export default function LoginPage() {
       } else {
         router.push(userType === 'employee' ? '/admin' : '/dashboard');
       }
-    } catch (error) {
+    } catch (_error) {
       setError('An error occurred. Please try again.');
     } finally {
       setIsLoading(false);
@@ -231,7 +231,7 @@ export default function LoginPage() {
 
                 {userType === 'customer' && (
                   <div className="text-center pt-4">
-                    <p className="text-slate-400 mb-2">Don't have an account?</p>
+                    <p className="text-slate-400 mb-2">Don&apos;t have an account?</p>
                     <Link
                       href="/register"
                       className="font-medium text-blue-400 hover:text-blue-300 transition-colors duration-300"
