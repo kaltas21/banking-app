@@ -73,6 +73,47 @@ export default function AccountDetailPage() {
     }
   };
 
+  const exportTransactions = () => {
+    if (filteredTransactions.length === 0) {
+      alert('No transactions to export');
+      return;
+    }
+
+    // Create CSV content
+    const headers = ['Date', 'Type', 'Description', 'From/To Account', 'Amount', 'Credit/Debit'];
+    const csvContent = [
+      headers.join(','),
+      ...filteredTransactions.map(transaction => {
+        const isCredit = transaction.to_account_id === parseInt(accountId);
+        const amount = parseFloat(transaction.amount.toString()).toFixed(2);
+        const formattedAmount = isCredit ? `+${amount}` : `-${amount}`;
+        const fromTo = isCredit 
+          ? transaction.from_account_number || 'External' 
+          : transaction.to_account_number || 'External';
+        
+        return [
+          new Date(transaction.transaction_date).toLocaleDateString(),
+          transaction.transaction_type,
+          `"${transaction.description || '-'}"`,
+          fromTo,
+          formattedAmount,
+          isCredit ? 'Credit' : 'Debit'
+        ].join(',');
+      })
+    ].join('\n');
+
+    // Create and download file
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `account_${account?.account_number}_transactions_${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   const filteredTransactions = transactions.filter(transaction => {
     if (filter.dateFrom && new Date(transaction.transaction_date) < new Date(filter.dateFrom)) {
       return false;
@@ -251,6 +292,7 @@ export default function AccountDetailPage() {
               </motion.div>
               
               <motion.button 
+                onClick={exportTransactions}
                 className="flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-xl hover:from-green-700 hover:to-green-800 transition-all duration-300 shadow-lg hover:shadow-green-500/25"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}

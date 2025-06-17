@@ -85,7 +85,7 @@ export async function POST(request: Request) {
         )
         VALUES (
           $1, $2, $3,
-          'Checking', 0.00, 'Active'
+          'Checking', 10000.00, 'Active'
         )
       `;
       await client.query(createCheckingQuery, [

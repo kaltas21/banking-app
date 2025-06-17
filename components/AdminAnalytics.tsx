@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
@@ -11,7 +12,10 @@ import {
   BarChart3,
   Target,
   AlertCircle,
-  Activity
+  Activity,
+  Award,
+  Building2,
+  CreditCard
 } from 'lucide-react';
 
 interface AdvancedAnalyticsData {
@@ -46,250 +50,375 @@ export default function AdminAnalytics() {
 
   if (loading) {
     return (
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {[...Array(6)].map((_, i) => (
-          <Card key={i} className="animate-pulse">
-            <CardHeader className="h-20 bg-gray-200" />
-            <CardContent className="h-32 bg-gray-100" />
-          </Card>
+          <motion.div 
+            key={i} 
+            className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-sm rounded-2xl border border-slate-700/50 p-6 animate-pulse"
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.3, delay: i * 0.1 }}
+          >
+            <div className="h-6 bg-slate-700/50 rounded-lg mb-4"></div>
+            <div className="h-32 bg-slate-700/30 rounded-lg"></div>
+          </motion.div>
         ))}
       </div>
     );
   }
 
   if (!analytics) {
-    return <div>Failed to load analytics</div>;
+    return (
+      <div className="flex flex-col items-center justify-center py-16">
+        <AlertCircle className="h-16 w-16 text-slate-600 mb-4" />
+        <h3 className="text-xl font-semibold text-slate-400 mb-2">Failed to load analytics</h3>
+        <p className="text-slate-500">Please try refreshing the page</p>
+      </div>
+    );
   }
 
   const getRiskColor = (risk: string) => {
+    if (!risk) return 'bg-slate-500/20 text-slate-400 border border-slate-500/30';
     switch (risk) {
-      case 'Low Risk': return 'bg-green-100 text-green-800';
-      case 'Medium Risk': return 'bg-yellow-100 text-yellow-800';
-      case 'High Risk': return 'bg-red-100 text-red-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'Low Risk': return 'bg-green-500/20 text-green-400 border border-green-500/30';
+      case 'Medium Risk': return 'bg-amber-500/20 text-amber-400 border border-amber-500/30';
+      case 'High Risk': return 'bg-red-500/20 text-red-400 border border-red-500/30';
+      default: return 'bg-slate-500/20 text-slate-400 border border-slate-500/30';
     }
   };
 
   const getSegmentIcon = (segment: string) => {
-    if (segment.includes('Premium')) return <TrendingUp className="h-5 w-5 text-purple-600" />;
-    if (segment.includes('High')) return <DollarSign className="h-5 w-5 text-green-600" />;
-    if (segment.includes('Regular')) return <Users className="h-5 w-5 text-blue-600" />;
-    if (segment.includes('Inactive')) return <AlertCircle className="h-5 w-5 text-red-600" />;
-    return <Activity className="h-5 w-5 text-gray-600" />;
+    if (!segment) return <Activity className="h-5 w-5 text-slate-400" />;
+    if (segment.includes('Premium')) return <Award className="h-5 w-5 text-purple-400" />;
+    if (segment.includes('High')) return <DollarSign className="h-5 w-5 text-green-400" />;
+    if (segment.includes('Regular')) return <Users className="h-5 w-5 text-blue-400" />;
+    if (segment.includes('Inactive')) return <AlertCircle className="h-5 w-5 text-red-400" />;
+    return <Activity className="h-5 w-5 text-slate-400" />;
+  };
+
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        delayChildren: 0.1,
+        staggerChildren: 0.1
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: { y: 0, opacity: 1 }
   };
 
   return (
-    <div className="space-y-6">
-      <h2 className="text-2xl font-bold flex items-center gap-2">
-        <BarChart3 className="h-6 w-6" />
-        Advanced Banking Analytics
-      </h2>
+    <motion.div 
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+      className="space-y-8"
+    >
+      <motion.div variants={itemVariants}>
+        <h2 className="text-3xl font-bold text-white flex items-center gap-3 mb-2">
+          <motion.div
+            className="bg-gradient-to-r from-amber-500 to-amber-600 w-10 h-10 rounded-2xl flex items-center justify-center shadow-lg"
+            whileHover={{ rotate: 360 }}
+            transition={{ duration: 0.6 }}
+          >
+            <BarChart3 className="h-5 w-5 text-white" />
+          </motion.div>
+          Advanced Banking Analytics
+        </h2>
+        <p className="text-slate-400">Comprehensive insights into customer behavior and banking operations</p>
+      </motion.div>
 
       {/* Above Average Customers */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <TrendingUp className="h-5 w-5" />
-            High-Value Customers (Above Average Balance)
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b">
-                  <th className="text-left py-2">Customer</th>
-                  <th className="text-right py-2">Total Balance</th>
-                  <th className="text-right py-2">Accounts</th>
-                </tr>
-              </thead>
-              <tbody>
-                {analytics.aboveAverageCustomers.slice(0, 10).map((customer, idx) => (
-                  <tr key={idx} className="border-b">
-                    <td className="py-2">
-                      <div>
-                        <p className="font-medium">{customer.first_name} {customer.last_name}</p>
-                        <p className="text-sm text-gray-600">{customer.email}</p>
+      <motion.div 
+        variants={itemVariants}
+        className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-sm rounded-2xl border border-slate-700/50 p-6"
+        whileHover={{ scale: 1.01 }}
+        transition={{ duration: 0.3 }}
+      >
+        <h3 className="text-xl font-semibold text-white mb-6 flex items-center gap-3">
+          <motion.div
+            className="bg-gradient-to-r from-green-500 to-green-600 w-8 h-8 rounded-xl flex items-center justify-center"
+            whileHover={{ rotate: 360 }}
+            transition={{ duration: 0.6 }}
+          >
+            <TrendingUp className="h-4 w-4 text-white" />
+          </motion.div>
+          High-Value Customers (Above Average Balance)
+        </h3>
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead className="bg-slate-700/30 border-b border-slate-600/50">
+              <tr>
+                <th className="text-left py-3 px-4 text-sm font-semibold text-slate-300">Customer</th>
+                <th className="text-right py-3 px-4 text-sm font-semibold text-slate-300">Total Balance</th>
+                <th className="text-right py-3 px-4 text-sm font-semibold text-slate-300">Accounts</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-700/50">
+              {analytics.aboveAverageCustomers.slice(0, 10).map((customer, idx) => (
+                <motion.tr 
+                  key={idx} 
+                  className="hover:bg-slate-700/20 transition-all duration-300"
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.3, delay: idx * 0.05 }}
+                >
+                  <td className="py-3 px-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-gradient-to-r from-green-500 to-green-600 rounded-xl flex items-center justify-center">
+                        <span className="text-white font-semibold text-sm">
+                          {customer.first_name?.charAt(0)}{customer.last_name?.charAt(0)}
+                        </span>
                       </div>
-                    </td>
-                    <td className="text-right py-2 font-bold">
+                      <div>
+                        <p className="text-white font-medium">{customer.first_name} {customer.last_name}</p>
+                        <p className="text-slate-400 text-sm">{customer.email}</p>
+                      </div>
+                    </div>
+                  </td>
+                  <td className="text-right py-3 px-4">
+                    <span className="text-green-400 font-bold text-lg">
                       ${parseFloat(customer.total_balance).toFixed(2)}
-                    </td>
-                    <td className="text-right py-2">
-                      {customer.account_count}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </CardContent>
-      </Card>
+                    </span>
+                  </td>
+                  <td className="text-right py-3 px-4">
+                    <span className="text-white font-medium">{customer.account_count}</span>
+                  </td>
+                </motion.tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </motion.div>
 
       {/* Monthly Transaction Patterns */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Activity className="h-5 w-5" />
-            Monthly Transaction Patterns
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {Object.entries(
-              analytics.monthlyPatterns.reduce((acc: any, item: any) => {
-                if (!acc[item.month]) acc[item.month] = [];
-                acc[item.month].push(item);
-                return acc;
-              }, {})
-            ).slice(0, 6).map(([month, patterns]: [string, any]) => (
-              <div key={month} className="border-b pb-3 last:border-0">
-                <h4 className="font-medium mb-2">{month}</h4>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-sm">
-                  {patterns.map((pattern: any, idx: number) => (
-                    <div key={idx}>
-                      <p className="text-gray-600">{pattern.transaction_type}</p>
-                      <p className="font-medium">{pattern.transaction_count} txns</p>
-                      <p className="text-xs">${parseFloat(pattern.total_amount).toFixed(0)}</p>
-                    </div>
-                  ))}
-                </div>
+      <motion.div 
+        variants={itemVariants}
+        className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-sm rounded-2xl border border-slate-700/50 p-6"
+        whileHover={{ scale: 1.01 }}
+        transition={{ duration: 0.3 }}
+      >
+        <h3 className="text-xl font-semibold text-white mb-6 flex items-center gap-3">
+          <motion.div
+            className="bg-gradient-to-r from-blue-500 to-blue-600 w-8 h-8 rounded-xl flex items-center justify-center"
+            whileHover={{ rotate: 360 }}
+            transition={{ duration: 0.6 }}
+          >
+            <Activity className="h-4 w-4 text-white" />
+          </motion.div>
+          Monthly Transaction Patterns
+        </h3>
+        <div className="space-y-6">
+          {Object.entries(
+            analytics.monthlyPatterns.reduce((acc: any, item: any) => {
+              if (!acc[item.month]) acc[item.month] = [];
+              acc[item.month].push(item);
+              return acc;
+            }, {})
+          ).slice(0, 6).map(([month, patterns]: [string, any], monthIdx) => (
+            <motion.div 
+              key={month} 
+              className="bg-slate-700/30 p-4 rounded-xl border border-slate-600/30"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3, delay: monthIdx * 0.1 }}
+            >
+              <h4 className="text-white font-semibold mb-4 flex items-center gap-2">
+                <Building2 className="h-4 w-4 text-blue-400" />
+                {month}
+              </h4>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {patterns.map((pattern: any, idx: number) => (
+                  <motion.div 
+                    key={idx}
+                    className="bg-slate-600/30 p-3 rounded-lg"
+                    whileHover={{ scale: 1.05 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <p className="text-slate-400 text-sm">{pattern.transaction_type}</p>
+                    <p className="text-white font-semibold">{pattern.transaction_count} txns</p>
+                    <p className="text-blue-400 text-sm font-medium">
+                      ${parseFloat(pattern.total_amount).toFixed(0)}
+                    </p>
+                  </motion.div>
+                ))}
               </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+            </motion.div>
+          ))}
+        </div>
+      </motion.div>
 
       {/* Top Active Accounts */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Target className="h-5 w-5" />
-            Most Active Accounts
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-3">
-            {analytics.topAccounts.slice(0, 5).map((account, idx) => (
-              <div key={idx} className="border rounded-lg p-3">
-                <div className="flex justify-between items-start mb-2">
-                  <div>
-                    <p className="font-medium">{account.first_name} {account.last_name}</p>
-                    <p className="text-sm text-gray-600">{account.account_number}</p>
-                    <Badge variant="outline" className="mt-1">
-                      {account.account_type}
-                    </Badge>
+      <motion.div 
+        variants={itemVariants}
+        className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-sm rounded-2xl border border-slate-700/50 p-6"
+        whileHover={{ scale: 1.01 }}
+        transition={{ duration: 0.3 }}
+      >
+        <h3 className="text-xl font-semibold text-white mb-6 flex items-center gap-3">
+          <motion.div
+            className="bg-gradient-to-r from-purple-500 to-purple-600 w-8 h-8 rounded-xl flex items-center justify-center"
+            whileHover={{ rotate: 360 }}
+            transition={{ duration: 0.6 }}
+          >
+            <Target className="h-4 w-4 text-white" />
+          </motion.div>
+          Most Active Accounts
+        </h3>
+        <div className="space-y-4">
+          {analytics.topAccounts.slice(0, 5).map((account, idx) => (
+            <motion.div 
+              key={idx} 
+              className="bg-slate-700/30 p-4 rounded-xl border border-slate-600/30 hover:border-purple-500/30 transition-all duration-300"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.3, delay: idx * 0.1 }}
+              whileHover={{ scale: 1.02 }}
+            >
+              <div className="flex justify-between items-start mb-3">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-purple-600 rounded-2xl flex items-center justify-center">
+                    <span className="text-white font-bold">
+                      {account.first_name?.charAt(0)}{account.last_name?.charAt(0)}
+                    </span>
                   </div>
-                  <div className="text-right">
-                    <p className="font-bold">${parseFloat(account.balance).toFixed(2)}</p>
-                    <p className="text-sm text-gray-600">{account.transaction_count} transactions</p>
+                  <div>
+                    <p className="text-white font-semibold">{account.first_name} {account.last_name}</p>
+                    <p className="text-slate-400 text-sm font-mono">{account.account_number}</p>
+                    <span className="inline-block mt-1 px-3 py-1 rounded-full text-xs font-semibold bg-purple-500/20 text-purple-400 border border-purple-500/30">
+                      {account.account_type}
+                    </span>
                   </div>
                 </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Net Flow:</span>
-                  <span className={parseFloat(account.net_flow) >= 0 ? 'text-green-600' : 'text-red-600'}>
-                    ${parseFloat(account.net_flow).toFixed(2)}
+                <div className="text-right">
+                  <p className="text-white font-bold text-lg">${parseFloat(account.balance).toFixed(2)}</p>
+                  <p className="text-slate-400 text-sm">{account.transaction_count} transactions</p>
+                </div>
+              </div>
+              <div className="flex justify-between items-center pt-3 border-t border-slate-600/30">
+                <span className="text-slate-400 text-sm">Net Flow:</span>
+                <span className={`font-bold ${parseFloat(account.net_flow) >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                  ${parseFloat(account.net_flow).toFixed(2)}
+                </span>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      </motion.div>
+
+      {/* Loan Risk Analysis */}
+      <motion.div 
+        variants={itemVariants}
+        className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-sm rounded-2xl border border-slate-700/50 p-6"
+        whileHover={{ scale: 1.01 }}
+        transition={{ duration: 0.3 }}
+      >
+        <h3 className="text-xl font-semibold text-white mb-6 flex items-center gap-3">
+          <motion.div
+            className="bg-gradient-to-r from-red-500 to-red-600 w-8 h-8 rounded-xl flex items-center justify-center"
+            whileHover={{ rotate: 360 }}
+            transition={{ duration: 0.6 }}
+          >
+            <AlertCircle className="h-4 w-4 text-white" />
+          </motion.div>
+          Loan Risk Analysis
+        </h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {analytics.loanRiskAnalysis.slice(0, 6).map((loanGroup, idx) => (
+            <motion.div 
+              key={idx}
+              className="bg-slate-700/30 p-4 rounded-xl border border-slate-600/30"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.3, delay: idx * 0.1 }}
+              whileHover={{ scale: 1.05 }}
+            >
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-10 h-10 bg-gradient-to-r from-red-500 to-red-600 rounded-xl flex items-center justify-center">
+                  <CreditCard className="h-5 w-5 text-white" />
+                </div>
+                <div>
+                  <h4 className="text-white font-semibold">{loanGroup.loan_status}</h4>
+                  <span className={`px-2 py-1 rounded-full text-xs font-semibold ${getRiskColor(loanGroup.risk_category)}`}>
+                    {loanGroup.risk_category}
                   </span>
                 </div>
               </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Loan Risk Analysis */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <AlertCircle className="h-5 w-5" />
-            Loan Portfolio Risk Analysis
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {analytics.loanRiskAnalysis.map((analysis, idx) => (
-              <div key={idx} className="border-b pb-3 last:border-0">
-                <div className="flex justify-between items-center mb-2">
-                  <div>
-                    <p className="font-medium">{analysis.loan_status}</p>
-                    <Badge className={getRiskColor(analysis.risk_category)}>
-                      {analysis.risk_category}
-                    </Badge>
-                  </div>
-                  <p className="font-bold text-lg">${parseFloat(analysis.total_amount).toFixed(0)}</p>
+              <div className="space-y-2">
+                <div className="flex justify-between">
+                  <span className="text-slate-400 text-sm">Total Loans:</span>
+                  <span className="text-white font-medium">{loanGroup.total_loans}</span>
                 </div>
-                <div className="grid grid-cols-2 gap-2 text-sm">
-                  <div>
-                    <span className="text-gray-600">Loans: </span>
-                    <span className="font-medium">{analysis.total_loans}</span>
-                  </div>
-                  <div>
-                    <span className="text-gray-600">Customers: </span>
-                    <span className="font-medium">{analysis.unique_customers}</span>
-                  </div>
-                  <div>
-                    <span className="text-gray-600">Avg Amount: </span>
-                    <span className="font-medium">${parseFloat(analysis.avg_loan_amount).toFixed(0)}</span>
-                  </div>
-                  <div>
-                    <span className="text-gray-600">Avg Rate: </span>
-                    <span className="font-medium">{parseFloat(analysis.avg_interest_rate).toFixed(2)}%</span>
-                  </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-400 text-sm">Customers:</span>
+                  <span className="text-white font-medium">{loanGroup.unique_customers}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-400 text-sm">Total Amount:</span>
+                  <span className="text-green-400 font-medium">${parseFloat(loanGroup.total_amount || '0').toLocaleString()}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-400 text-sm">Avg Amount:</span>
+                  <span className="text-blue-400 font-medium">${parseFloat(loanGroup.avg_loan_amount || '0').toLocaleString()}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-400 text-sm">Avg Rate:</span>
+                  <span className="text-amber-400 font-medium">{parseFloat(loanGroup.avg_interest_rate || '0').toFixed(2)}%</span>
                 </div>
               </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+            </motion.div>
+          ))}
+        </div>
+      </motion.div>
 
       {/* Customer Segmentation */}
-      <Card className="md:col-span-2">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Users className="h-5 w-5" />
-            Customer Segmentation Analysis
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {analytics.customerSegmentation.map((segment, idx) => {
-              const maxCount = Math.max(...analytics.customerSegmentation.map(s => s.customer_count));
-              const percentage = (segment.customer_count / maxCount) * 100;
-              
-              return (
-                <div key={idx}>
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center gap-2">
-                      {getSegmentIcon(segment.customer_segment)}
-                      <span className="font-medium">{segment.customer_segment}</span>
-                    </div>
-                    <span className="text-sm font-bold">{segment.customer_count} customers</span>
-                  </div>
-                  <Progress value={percentage} className="h-2 mb-2" />
-                  <div className="grid grid-cols-4 gap-4 text-sm">
-                    <div>
-                      <span className="text-gray-600">Avg Balance: </span>
-                      <span className="font-medium">${parseFloat(segment.avg_balance || '0').toFixed(0)}</span>
-                    </div>
-                    <div>
-                      <span className="text-gray-600">Avg Accounts: </span>
-                      <span className="font-medium">{parseFloat(segment.avg_accounts || '0').toFixed(1)}</span>
-                    </div>
-                    <div>
-                      <span className="text-gray-600">Avg Loans: </span>
-                      <span className="font-medium">{parseFloat(segment.avg_loans || '0').toFixed(1)}</span>
-                    </div>
-                    <div>
-                      <span className="text-gray-600">Total Loans: </span>
-                      <span className="font-medium">${parseFloat(segment.total_loans_value || '0').toFixed(0)}</span>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </CardContent>
-      </Card>
-    </div>
+      <motion.div 
+        variants={itemVariants}
+        className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-sm rounded-2xl border border-slate-700/50 p-6"
+        whileHover={{ scale: 1.01 }}
+        transition={{ duration: 0.3 }}
+      >
+        <h3 className="text-xl font-semibold text-white mb-6 flex items-center gap-3">
+          <motion.div
+            className="bg-gradient-to-r from-amber-500 to-amber-600 w-8 h-8 rounded-xl flex items-center justify-center"
+            whileHover={{ rotate: 360 }}
+            transition={{ duration: 0.6 }}
+          >
+            <Users className="h-4 w-4 text-white" />
+          </motion.div>
+          Customer Segmentation
+        </h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          {analytics.customerSegmentation.map((segment, idx) => (
+            <motion.div 
+              key={idx}
+              className="bg-slate-700/30 p-4 rounded-xl border border-slate-600/30 text-center"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3, delay: idx * 0.1 }}
+              whileHover={{ scale: 1.05 }}
+            >
+                             <div className="flex justify-center mb-3">
+                 <div className="w-12 h-12 bg-gradient-to-r from-amber-500 to-amber-600 rounded-2xl flex items-center justify-center">
+                   {getSegmentIcon(segment.segment || segment.customer_segment || '')}
+                 </div>
+               </div>
+               <h4 className="text-white font-semibold mb-2">{segment.segment || segment.customer_segment || 'Unknown'}</h4>
+               <p className="text-3xl font-bold text-amber-400 mb-1">{segment.customer_count || 0}</p>
+               <p className="text-slate-400 text-sm">customers</p>
+               <div className="mt-3 pt-3 border-t border-slate-600/30">
+                 <p className="text-slate-400 text-xs">Avg Balance</p>
+                 <p className="text-white font-medium">${parseFloat(segment.avg_balance || '0').toLocaleString()}</p>
+               </div>
+            </motion.div>
+          ))}
+        </div>
+      </motion.div>
+    </motion.div>
   );
 }
