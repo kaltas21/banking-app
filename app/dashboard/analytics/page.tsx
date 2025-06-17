@@ -9,7 +9,7 @@ import { motion } from 'framer-motion';
 import CustomerAnalytics from '@/components/CustomerAnalytics';
 
 export default function AnalyticsPage() {
-  const { data: session, status } = useSession();
+  const { data: _session, status } = useSession();
   const router = useRouter();
 
   useEffect(() => {

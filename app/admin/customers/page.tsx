@@ -4,7 +4,7 @@ import { useSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, Search, User, DollarSign, Calendar, Activity, TrendingUp, AlertCircle } from 'lucide-react';
+import { ArrowLeft, Search, AlertCircle } from 'lucide-react';
 
 interface Customer {
   customer_id: number;

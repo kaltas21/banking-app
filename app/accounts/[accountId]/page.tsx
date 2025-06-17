@@ -28,7 +28,7 @@ interface Transaction {
 }
 
 export default function AccountDetailPage() {
-  const { data: session, status } = useSession();
+  const { data: _session, status } = useSession();
   const router = useRouter();
   const params = useParams();
   const accountId = params.accountId as string;

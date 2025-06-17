@@ -408,7 +408,7 @@ export default function LoansPage() {
                 >
                   <FileText className="h-16 w-16 text-slate-600 mx-auto mb-4" />
                   <h3 className="text-xl font-semibold text-slate-400 mb-2">No loans found</h3>
-                  <p className="text-slate-500 mb-6">You haven't applied for any loans yet.</p>
+                  <p className="text-slate-500 mb-6">You haven&apos;t applied for any loans yet.</p>
                   <motion.button
                     onClick={() => setShowApplicationForm(true)}
                     className="bg-gradient-to-r from-purple-600 to-purple-700 text-white px-8 py-3 rounded-xl hover:from-purple-700 hover:to-purple-800 transition-all duration-300 shadow-lg hover:shadow-purple-500/25"
