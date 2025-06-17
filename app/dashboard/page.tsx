@@ -4,8 +4,10 @@ import { useSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { CreditCard, Send, FileText, LogOut, BarChart3 } from 'lucide-react';
+import { CreditCard, Send, FileText, LogOut, BarChart3, Building2 } from 'lucide-react';
 import { signOut } from 'next-auth/react';
+import { motion } from 'framer-motion';
+import Image from 'next/image';
 
 interface Account {
   account_id: number;
@@ -82,174 +84,319 @@ export default function DashboardPage() {
     : 0;
 
   if (loading) {
-    return <div className="flex justify-center items-center min-h-screen">Loading...</div>;
+    return (
+      <div className="flex justify-center items-center min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+        <motion.div
+          animate={{ rotate: 360 }}
+          transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+          className="w-12 h-12 border-4 border-amber-500 border-t-transparent rounded-full"
+        />
+      </div>
+    );
   }
 
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        delayChildren: 0.1,
+        staggerChildren: 0.1
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: { y: 0, opacity: 1 }
+  };
+
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 relative overflow-hidden">
+      {/* Subtle Background Pattern */}
+      <div className="absolute inset-0 opacity-5">
+        <div className="absolute inset-0" style={{
+          backgroundImage: `radial-gradient(circle at 25% 25%, rgba(59, 130, 246, 0.1) 0%, transparent 50%),
+                           radial-gradient(circle at 75% 75%, rgba(251, 191, 36, 0.1) 0%, transparent 50%)`
+        }}></div>
+      </div>
+
       {/* Header */}
-      <header className="bg-white shadow">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+      <motion.header 
+        className="relative z-10 bg-slate-900/80 backdrop-blur-sm border-b border-slate-700/50"
+        initial={{ y: -100, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.8, ease: "easeOut" }}
+      >
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex justify-between items-center">
-            <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-            <div className="flex items-center space-x-4">
-              <span className="text-gray-700">Welcome, {session?.user?.name}</span>
-              <button
+            <motion.div 
+              className="flex items-center space-x-4"
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+            >
+              <div className="relative w-12 h-12">
+                <Image
+                  src="/logo.png"
+                  alt="MK Bank Logo"
+                  fill
+                  className="object-contain"
+                />
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold text-white">Dashboard</h1>
+                <p className="text-slate-400 text-sm">Your Financial Overview</p>
+              </div>
+            </motion.div>
+            <motion.div 
+              className="flex items-center space-x-4"
+              initial={{ x: 100, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              transition={{ duration: 0.6, delay: 0.4 }}
+            >
+              <span className="text-slate-300">Welcome, {session?.user?.name}</span>
+              <motion.button
                 onClick={() => signOut({ callbackUrl: '/login' })}
-                className="flex items-center space-x-2 text-gray-600 hover:text-gray-900"
+                className="flex items-center space-x-2 px-4 py-2 border border-slate-600 text-slate-300 rounded-lg hover:border-red-500 hover:text-red-400 transition-all duration-300"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
               >
                 <LogOut className="h-5 w-5" />
                 <span>Logout</span>
-              </button>
-            </div>
+              </motion.button>
+            </motion.div>
           </div>
         </div>
-      </header>
+      </motion.header>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Account Summary */}
-        <div className="mb-8">
-          <h2 className="text-xl font-semibold mb-4">Account Summary</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {accounts.length === 0 ? (
-              <div className="col-span-3 bg-white p-6 rounded-lg shadow text-center">
-                <p className="text-gray-600">No accounts found. Please contact support.</p>
-              </div>
-            ) : (
-              accounts.map((account) => (
-              <Link
-                key={account.account_id}
-                href={`/accounts/${account.account_id}`}
-                className="bg-white p-6 rounded-lg shadow hover:shadow-lg transition-shadow"
-              >
-                <div className="flex justify-between items-start mb-2">
-                  <h3 className="font-medium text-gray-900">{account.account_type} Account</h3>
-                  <span className={`text-xs px-2 py-1 rounded ${
-                    account.status === 'Active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
-                  }`}>
-                    {account.status}
-                  </span>
-                </div>
-                <p className="text-sm text-gray-600 mb-2">{account.account_number}</p>
-                <p className="text-2xl font-bold text-gray-900">
-                  ${parseFloat(account.balance.toString()).toFixed(2)}
-                </p>
-              </Link>
-            )))}
-            
-            {/* Total Balance Card */}
-            {accounts.length > 0 && (
-              <div className="bg-blue-600 text-white p-6 rounded-lg shadow">
-                <h3 className="font-medium mb-2">Total Balance</h3>
-                <p className="text-3xl font-bold">${totalBalance.toFixed(2)}</p>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Quick Actions */}
-        <div className="mb-8">
-          <h2 className="text-xl font-semibold mb-4">Quick Actions</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Link
-              href="/transfer"
-              className="bg-white p-6 rounded-lg shadow hover:shadow-lg transition-shadow flex items-center space-x-4"
-            >
-              <Send className="h-8 w-8 text-blue-600" />
-              <div>
-                <h3 className="font-medium">Transfer Money</h3>
-                <p className="text-sm text-gray-600">Send money between accounts</p>
-              </div>
-            </Link>
-            
-            <Link
-              href="/transfer?type=bill"
-              className="bg-white p-6 rounded-lg shadow hover:shadow-lg transition-shadow flex items-center space-x-4"
-            >
-              <CreditCard className="h-8 w-8 text-green-600" />
-              <div>
-                <h3 className="font-medium">Pay Bills</h3>
-                <p className="text-sm text-gray-600">Pay your bills online</p>
-              </div>
-            </Link>
-            
-            <Link
-              href="/loans"
-              className="bg-white p-6 rounded-lg shadow hover:shadow-lg transition-shadow flex items-center space-x-4"
-            >
-              <FileText className="h-8 w-8 text-purple-600" />
-              <div>
-                <h3 className="font-medium">Apply for Loan</h3>
-                <p className="text-sm text-gray-600">Request a personal loan</p>
-              </div>
-            </Link>
-          </div>
-        </div>
-
-        {/* Analytics Section */}
-        <div className="mb-8">
-          <Link
-            href="/dashboard/analytics"
-            className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 mb-4"
-          >
-            <BarChart3 className="h-5 w-5" />
-            <span className="font-medium">View Detailed Analytics</span>
-          </Link>
-        </div>
-
-        {/* Recent Transactions */}
-        <div>
-          <h2 className="text-xl font-semibold mb-4">Recent Transactions</h2>
-          <div className="bg-white rounded-lg shadow overflow-hidden">
-            <table className="min-w-full">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Date
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Type
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Description
-                  </th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Amount
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {transactions.map((transaction) => (
-                  <tr key={transaction.transaction_id}>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {new Date(transaction.transaction_date).toLocaleDateString()}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {transaction.transaction_type}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {transaction.description || '-'}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-right font-medium">
-                      <span className={transaction.to_account_id === accounts[0]?.account_id ? 'text-green-600' : 'text-red-600'}>
-                        {transaction.to_account_id === accounts[0]?.account_id ? '+' : '-'}
-                        ${parseFloat(transaction.amount.toString()).toFixed(2)}
+      <main className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <motion.div
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+          className="space-y-8"
+        >
+          {/* Account Summary */}
+          <motion.div variants={itemVariants}>
+            <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+              <Building2 className="h-7 w-7 text-amber-400" />
+              Account Summary
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {accounts.length === 0 ? (
+                <motion.div 
+                  className="col-span-3 bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-sm p-8 rounded-2xl border border-slate-700/50 text-center"
+                  whileHover={{ scale: 1.02, borderColor: 'rgba(59, 130, 246, 0.3)' }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <p className="text-slate-400">No accounts found. Please contact support.</p>
+                </motion.div>
+              ) : (
+                accounts.map((account, index) => (
+                <motion.div
+                  key={account.account_id}
+                  variants={itemVariants}
+                  whileHover={{ 
+                    scale: 1.05, 
+                    rotateY: 5,
+                    boxShadow: "0 25px 50px rgba(0,0,0,0.4)"
+                  }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <Link
+                    href={`/accounts/${account.account_id}`}
+                    className="block bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-sm p-6 rounded-2xl border border-slate-700/50 hover:border-blue-500/30 transition-all duration-500 h-full group"
+                  >
+                    <div className="flex justify-between items-start mb-4">
+                      <h3 className="font-semibold text-white group-hover:text-blue-400 transition-colors">
+                        {account.account_type} Account
+                      </h3>
+                      <span className={`text-xs px-3 py-1 rounded-full ${
+                        account.status === 'Active' 
+                          ? 'bg-green-500/20 text-green-400 border border-green-500/30' 
+                          : 'bg-slate-500/20 text-slate-400 border border-slate-500/30'
+                      }`}>
+                        {account.status}
                       </span>
-                    </td>
-                  </tr>
-                ))}
-                {transactions.length === 0 && (
-                  <tr>
-                    <td colSpan={4} className="px-6 py-4 text-center text-gray-500">
-                      No transactions yet
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
+                    </div>
+                    <p className="text-sm text-slate-500 mb-4 font-mono">{account.account_number}</p>
+                    <p className="text-3xl font-bold text-white">
+                      ${parseFloat(account.balance.toString()).toFixed(2)}
+                    </p>
+                  </Link>
+                </motion.div>
+              )))}
+              
+              {/* Total Balance Card */}
+              {accounts.length > 0 && (
+                <motion.div
+                  variants={itemVariants}
+                  whileHover={{ 
+                    scale: 1.05, 
+                    rotateY: 5,
+                    boxShadow: "0 25px 50px rgba(59, 130, 246, 0.4)"
+                  }}
+                  transition={{ duration: 0.3 }}
+                  className="bg-gradient-to-r from-blue-600 to-blue-700 p-6 rounded-2xl shadow-xl border border-blue-500/30"
+                >
+                  <h3 className="font-semibold text-blue-100 mb-2">Total Balance</h3>
+                  <p className="text-4xl font-bold text-white">${totalBalance.toFixed(2)}</p>
+                </motion.div>
+              )}
+            </div>
+          </motion.div>
+
+          {/* Quick Actions */}
+          <motion.div variants={itemVariants}>
+            <h2 className="text-2xl font-bold text-white mb-6">Quick Actions</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {[
+                {
+                  href: "/transfer",
+                  icon: Send,
+                  title: "Transfer Money",
+                  description: "Send money between accounts",
+                  color: "blue",
+                  gradient: "from-blue-500 to-blue-600"
+                },
+                {
+                  href: "/transfer?type=bill",
+                  icon: CreditCard,
+                  title: "Pay Bills",
+                  description: "Pay your bills online",
+                  color: "green",
+                  gradient: "from-green-500 to-green-600"
+                },
+                {
+                  href: "/loans",
+                  icon: FileText,
+                  title: "Apply for Loan",
+                  description: "Request a personal loan",
+                  color: "purple",
+                  gradient: "from-purple-500 to-purple-600"
+                }
+              ].map((action, index) => (
+                <motion.div
+                  key={action.href}
+                  variants={itemVariants}
+                  whileHover={{ 
+                    scale: 1.05, 
+                    rotateY: 5,
+                    boxShadow: "0 25px 50px rgba(0,0,0,0.4)"
+                  }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <Link
+                    href={action.href}
+                    className="block bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-sm p-6 rounded-2xl border border-slate-700/50 hover:border-blue-500/30 transition-all duration-500 h-full group"
+                  >
+                    <div className="flex items-center space-x-4">
+                      <motion.div
+                        className={`bg-gradient-to-r ${action.gradient} w-12 h-12 rounded-xl flex items-center justify-center shadow-lg`}
+                        whileHover={{ rotate: 360 }}
+                        transition={{ duration: 0.6 }}
+                      >
+                        <action.icon className="h-6 w-6 text-white" />
+                      </motion.div>
+                      <div>
+                        <h3 className="font-semibold text-white group-hover:text-blue-400 transition-colors">
+                          {action.title}
+                        </h3>
+                        <p className="text-sm text-slate-400">{action.description}</p>
+                      </div>
+                    </div>
+                  </Link>
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
+
+          {/* Analytics Section */}
+          <motion.div variants={itemVariants}>
+            <motion.div
+              whileHover={{ scale: 1.02 }}
+              transition={{ duration: 0.3 }}
+            >
+              <Link
+                href="/dashboard/analytics"
+                className="inline-flex items-center gap-3 bg-gradient-to-r from-slate-800/60 to-slate-900/60 backdrop-blur-sm px-6 py-4 rounded-xl border border-slate-700/50 hover:border-amber-500/50 text-amber-400 hover:text-amber-300 transition-all duration-300 group"
+              >
+                <BarChart3 className="h-6 w-6" />
+                <span className="font-semibold">View Detailed Analytics</span>
+                <motion.div
+                  className="opacity-0 group-hover:opacity-100 transition-opacity"
+                  animate={{ x: [0, 5, 0] }}
+                  transition={{ duration: 1.5, repeat: Infinity }}
+                >
+                  →
+                </motion.div>
+              </Link>
+            </motion.div>
+          </motion.div>
+
+          {/* Recent Transactions */}
+          <motion.div variants={itemVariants}>
+            <h2 className="text-2xl font-bold text-white mb-6">Recent Transactions</h2>
+            <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-sm rounded-2xl border border-slate-700/50 overflow-hidden">
+              <div className="overflow-x-auto">
+                <table className="min-w-full">
+                  <thead className="bg-slate-900/50">
+                    <tr>
+                      <th className="px-6 py-4 text-left text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                        Date
+                      </th>
+                      <th className="px-6 py-4 text-left text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                        Type
+                      </th>
+                      <th className="px-6 py-4 text-left text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                        Description
+                      </th>
+                      <th className="px-6 py-4 text-right text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                        Amount
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-700/50">
+                    {transactions.map((transaction, index) => (
+                      <motion.tr 
+                        key={transaction.transaction_id}
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ duration: 0.3, delay: index * 0.1 }}
+                        className="hover:bg-slate-700/30 transition-colors"
+                      >
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-400">
+                          {new Date(transaction.transaction_date).toLocaleDateString()}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-white">
+                          {transaction.transaction_type}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-400">
+                          {transaction.description || '-'}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-right font-semibold">
+                          <span className={transaction.to_account_id === accounts[0]?.account_id ? 'text-green-400' : 'text-red-400'}>
+                            {transaction.to_account_id === accounts[0]?.account_id ? '+' : '-'}
+                            ${parseFloat(transaction.amount.toString()).toFixed(2)}
+                          </span>
+                        </td>
+                      </motion.tr>
+                    ))}
+                    {transactions.length === 0 && (
+                      <tr>
+                        <td colSpan={4} className="px-6 py-8 text-center text-slate-500">
+                          No transactions yet
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </motion.div>
+        </motion.div>
       </main>
     </div>
   );
