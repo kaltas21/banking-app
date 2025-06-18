@@ -89,9 +89,18 @@ export async function POST(request: Request) {
       `;
       await client.query(creditQuery, [amount, toAccount.account_id]);
 
+      // Get the next transaction_id
+      const maxTransactionIdQuery = `
+        SELECT COALESCE(MAX(transaction_id), 0) + 1 as next_transaction_id
+        FROM transactions
+      `;
+      const maxTransactionIdResult = await client.query(maxTransactionIdQuery);
+      const nextTransactionId = maxTransactionIdResult.rows[0].next_transaction_id;
+
       // Record transaction
       const transactionQuery = `
         INSERT INTO transactions (
+          transaction_id,
           from_account_id,
           to_account_id,
           amount,
@@ -102,13 +111,15 @@ export async function POST(request: Request) {
           $1,
           $2,
           $3,
-          'Transfer',
           $4,
-          $5
+          'Transfer',
+          $5,
+          $6
         )
         RETURNING transaction_id
       `;
       const transactionResult = await client.query(transactionQuery, [
+        nextTransactionId,
         fromAccountId,
         toAccount.account_id,
         amount,
